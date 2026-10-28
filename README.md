@@ -241,8 +241,8 @@ Luna로 부족할 때 다음 단계는 작업 종류로 갈린다.
 - 규칙의 기준은 `SKILL.md`다. README는 요약과 사용법이므로 규칙을 바꾸면 두 파일을 함께 고친다.
 - 모델·가격·벤치마크 수치를 추가할 때는 `SKILL.md` 마지막 절에 출처와 확인일을 남긴다. 공식 출처가 아니면 보조 자료로 구분한다.
 - 변경은 이슈나 PR로 제안한다. `main`에 반영되면 사용자는 [업데이트](#업데이트와-제거) 명령으로 받는다.
-- 플러그인 매니페스트(`.claude-plugin/plugin.json`)에는 `version`을 일부러 넣지 않는다. 비워 두면 커밋 SHA가 버전이 되어 push할 때마다 업데이트로 인식된다. `version`을 넣으면 매 배포마다 올려야 한다.
-- 매니페스트를 고친 뒤에는 저장소 루트에서 `claude plugin validate .`를 실행한다.
+- 배포할 변경은 `.claude-plugin/plugin.json`의 `version`(semver)을 올린 뒤 push한다. 버전을 그대로 두면 Claude Code 플러그인 사용자는 이전 사본을 계속 쓴다. 규칙 문구 수정은 patch, 배치 규칙 추가·변경은 minor, 호환되지 않는 구조 변경은 major를 올린다.
+- 매니페스트를 고친 뒤에는 저장소 루트에서 `claude plugin validate . --strict --profile directory`를 실행한다.
 
 ## 라이선스
 
