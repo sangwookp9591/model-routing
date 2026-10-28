@@ -246,7 +246,7 @@ Luna로 부족할 때 다음 단계는 작업 종류로 갈린다.
 
 ## 라이선스
 
-[MIT](LICENSE)
+[MIT](LICENSE) · [개인정보 처리방침](PRIVACY.md)
 
 ## 공식 문서
 
