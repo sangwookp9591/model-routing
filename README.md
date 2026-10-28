@@ -21,7 +21,13 @@ Claude Code와 Codex에서 함께 쓰는 에이전트 스킬이다. 작업을 �
 
 ## 설치
 
-두 방법 중 하나를 고른다. 어느 쪽이든 설치 후 Claude Code·Codex 세션을 새로 열어야 스킬이 인식된다.
+세 방법 중 하나만 고른다. 같은 스킬을 두 방법으로 설치하면 중복으로 로드된다. 어느 쪽이든 설치 후 Claude Code·Codex 세션을 새로 열어야 스킬이 인식된다.
+
+| 방법 | 대상 | 업데이트 | 맞는 경우 |
+| --- | --- | --- | --- |
+| [1. `npx skills`](#방법-1-npx-skills-권장) | Claude Code + Codex | 명령 한 줄 | 두 에이전트를 함께 쓸 때 (권장) |
+| [2. Claude Code 플러그인](#방법-2-claude-code-플러그인) | Claude Code | 자동 업데이트 가능 | Claude Code만 쓸 때 |
+| [3. git clone + 링크](#방법-3-git-clone--링크) | Claude Code + Codex | `git pull` | 스킬을 직접 고치며 쓸 때 |
 
 ### 방법 1. `npx skills` (권장)
 
@@ -48,7 +54,33 @@ npx skills add sangwookp9591/model-routing -g -a claude-code codex -y
 npx skills list -g
 ```
 
-### 방법 2. git clone + 링크
+### 방법 2. Claude Code 플러그인
+
+Claude Code 2.1.275 이상에서는 세션 안에서 한 줄로 설치한다.
+
+```text
+/plugin install model-routing --marketplace sangwookp9591/model-routing
+```
+
+이전 버전이거나 마켓플레이스를 먼저 등록하고 싶으면 두 단계로 나눈다.
+
+```text
+/plugin marketplace add sangwookp9591/model-routing
+/plugin install model-routing@model-routing
+```
+
+터미널에서는 같은 동작을 `claude plugin ...`으로 실행한다.
+
+```bash
+claude plugin marketplace add sangwookp9591/model-routing
+claude plugin install model-routing@model-routing
+```
+
+설치 후 `/reload-plugins`를 실행하거나 세션을 새로 연다. 플러그인으로 설치한 스킬의 명시적 호출 이름은 `/model-routing:model-routing`이다.
+
+자동 업데이트는 직접 추가한 마켓플레이스에서 기본으로 꺼져 있다. 켜려면 `/plugin` → **Marketplaces** 탭 → `model-routing` → **Enable auto-update**를 선택한다. 켜 두면 세션을 시작할 때 새 커밋을 받아 오고, 다음 세션부터 적용된다.
+
+### 방법 3. git clone + 링크
 
 Node.js 없이 쓰거나, 스킬을 직접 고치면서 쓰고 싶을 때 사용한다.
 
@@ -75,6 +107,7 @@ ChatGPT의 개인 스킬 생성·설치는 로컬 CLI의 폴더 연결과 별도
 | 설치 방법 | 새 버전 확인 | 업데이트 | 제거 |
 | --- | --- | --- | --- |
 | `npx skills` | `npx skills check` | `npx skills update model-routing` | `npx skills remove model-routing -g` |
+| Claude Code 플러그인 | `/plugin` → **Installed** | `claude plugin update model-routing@model-routing` 또는 자동 업데이트 | `claude plugin uninstall model-routing@model-routing` |
 | git clone | `git -C ~/skills/model-routing fetch && git -C ~/skills/model-routing status` | `git -C ~/skills/model-routing pull` | 두 링크와 clone 폴더 삭제 |
 
 업데이트 후에는 진행 중인 세션을 새로 열어야 바뀐 규칙이 적용된다. 바뀐 내용은 저장소의 커밋 기록에서 확인한다.
@@ -84,7 +117,7 @@ ChatGPT의 개인 스킬 생성·설치는 로컬 CLI의 폴더 연결과 별도
 ### 호출 방식
 
 - **자동 호출**: 모델 배치, effort 선택, 작업 분배, 승격 판단이 필요한 요청이면 에이전트가 스킬 설명을 보고 스스로 불러온다.
-- **명시적 호출**: 확실하게 적용하려면 요청 앞에 붙인다. Claude Code는 `/model-routing`, Codex는 `$model-routing`이다.
+- **명시적 호출**: 확실하게 적용하려면 요청 앞에 붙인다. Claude Code는 `/model-routing`(플러그인 설치 시 `/model-routing:model-routing`), Codex는 `$model-routing`이다.
 
 스킬은 모델을 **고르고 배치표를 만드는** 규칙이다. 실제로 다른 모델을 띄우려면 실행 환경에 서브에이전트·모델 선택 기능이 있어야 한다. 기능이 없으면 스킬은 배치안을 제안만 하고, 실제 실행 모델과 구분해 보고한다.
 
@@ -208,6 +241,8 @@ Luna로 부족할 때 다음 단계는 작업 종류로 갈린다.
 - 규칙의 기준은 `SKILL.md`다. README는 요약과 사용법이므로 규칙을 바꾸면 두 파일을 함께 고친다.
 - 모델·가격·벤치마크 수치를 추가할 때는 `SKILL.md` 마지막 절에 출처와 확인일을 남긴다. 공식 출처가 아니면 보조 자료로 구분한다.
 - 변경은 이슈나 PR로 제안한다. `main`에 반영되면 사용자는 [업데이트](#업데이트와-제거) 명령으로 받는다.
+- 플러그인 매니페스트(`.claude-plugin/plugin.json`)에는 `version`을 일부러 넣지 않는다. 비워 두면 커밋 SHA가 버전이 되어 push할 때마다 업데이트로 인식된다. `version`을 넣으면 매 배포마다 올려야 한다.
+- 매니페스트를 고친 뒤에는 저장소 루트에서 `claude plugin validate .`를 실행한다.
 
 ## 공식 문서
 
@@ -219,5 +254,6 @@ Luna로 부족할 때 다음 단계는 작업 종류로 갈린다.
 - [Opus 5.5](https://platform.claude.com/docs/en/models/opus-5-5/overview)
 - [Claude effort](https://platform.claude.com/docs/en/build-with-claude/effort)
 - [Claude Code 스킬 설치](https://code.claude.com/docs/en/skills)
+- [Claude Code 플러그인 설치·업데이트](https://code.claude.com/docs/en/plugins/install)
 - [Codex 스킬 설치](https://learn.chatgpt.com/docs/build-skills)
 - [skills CLI (`npx skills`)](https://github.com/vercel-labs/skills)

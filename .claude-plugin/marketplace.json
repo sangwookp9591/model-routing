@@ -1,0 +1,14 @@
+{
+  "name": "model-routing",
+  "description": "Luna 6 우선 모델 라우팅 스킬 마켓플레이스",
+  "owner": {
+    "name": "sangwookp9591"
+  },
+  "plugins": [
+    {
+      "name": "model-routing",
+      "source": "./",
+      "description": "Luna 6 우선 모델 라우팅 규칙 스킬"
+    }
+  ]
+}

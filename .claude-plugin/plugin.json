@@ -1,0 +1,8 @@
+{
+  "name": "model-routing",
+  "description": "Luna 6 우선 모델 라우팅 규칙. 작업별로 Luna 6, Terra 6.1, Sol 6.1, Sonnet 5.5, Opus 5.5, Astra와 effort를 배치한다. Fable·Gemini 제외.",
+  "author": { "name": "sangwookp9591" },
+  "homepage": "https://github.com/sangwookp9591/model-routing",
+  "repository": "https://github.com/sangwookp9591/model-routing",
+  "keywords": ["model-routing", "orchestration", "effort", "cost"]
+}
