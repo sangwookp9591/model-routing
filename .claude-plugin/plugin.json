@@ -1,7 +1,7 @@
 {
   "name": "model-routing",
   "version": "1.0.0",
-  "description": "Luna 6 우선 모델 라우팅 규칙. 작업별로 Luna 6, Terra 6.1, Sol 6.1, Sonnet 5.5, Opus 5.5, Astra와 effort를 배치한다. Fable·Gemini 제외.",
+  "description": "Model-routing rules for coding agents. Keeps most work on GPT-6 Luna and assigns only the hard parts to Terra 6.1, Sol 6.1, Sonnet 5.5, Opus 5.5 or Astra, with per-model effort and cost guidance. Excludes Fable and Gemini.",
   "author": {
     "name": "sangwookp9591"
   },
