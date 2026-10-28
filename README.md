@@ -2,7 +2,144 @@
 
 **대부분의 작업은 Luna 6으로 처리하고, 필요한 부분만 적합한 모델에 배치하는 Coordinator 라우팅 규칙.**
 
-Fable·Gemini 계열은 사용하지 않는다. 나머지 모델은 실제 가용성과 작업 적합성을 확인해 활용한다.
+Claude Code와 Codex에서 함께 쓰는 에이전트 스킬이다. 작업을 쪼개고, 각 작업에 맞는 모델(Luna 6, Terra 6.1, Sol 6.1, Sonnet 5.5, Opus 5.5, Astra)과 effort를 고르고, 실패했을 때 어디로 넘길지를 정한다. Fable·Gemini 계열은 사용하지 않는다.
+
+- 규칙 원문: [`SKILL.md`](SKILL.md)
+- 이 문서: 설치·업데이트·사용법과 규칙 요약
+
+## 목차
+
+1. [설치](#설치)
+2. [업데이트와 제거](#업데이트와-제거)
+3. [사용법](#사용법)
+4. [핵심 원칙](#핵심-원칙)
+5. [모델 배치](#모델-배치)
+6. [effort와 비용](#effort와-비용)
+7. [orchestration과 함께 사용](#orchestration과-함께-사용)
+8. [수정과 기여](#수정과-기여)
+9. [공식 문서](#공식-문서)
+
+## 설치
+
+두 방법 중 하나를 고른다. 어느 쪽이든 설치 후 Claude Code·Codex 세션을 새로 열어야 스킬이 인식된다.
+
+### 방법 1. `npx skills` (권장)
+
+Node.js 18 이상이 필요하다. 한 번에 Claude Code와 Codex 양쪽에 설치되고, 이후 명령 한 줄로 업데이트할 수 있다.
+
+```bash
+npx skills add sangwookp9591/model-routing -g -a claude-code codex -y
+```
+
+| 옵션 | 의미 |
+| --- | --- |
+| `-g` | 사용자 전역에 설치. 빼면 현재 프로젝트(`.claude/skills`, `.agents/skills`)에만 설치 |
+| `-a claude-code codex` | 설치 대상 에이전트. 하나만 쓰면 그 에이전트만 적는다 |
+| `-y` | 확인 질문 생략 |
+
+설치 결과는 다음과 같다.
+
+- `~/.agents/skills/model-routing`: 실제 파일 (Codex가 읽는 경로)
+- `~/.claude/skills/model-routing`: 위 폴더를 가리키는 링크 (Claude Code가 읽는 경로)
+
+설치 확인:
+
+```bash
+npx skills list -g
+```
+
+### 방법 2. git clone + 링크
+
+Node.js 없이 쓰거나, 스킬을 직접 고치면서 쓰고 싶을 때 사용한다.
+
+```bash
+git clone https://github.com/sangwookp9591/model-routing.git ~/skills/model-routing
+mkdir -p ~/.claude/skills ~/.agents/skills
+ln -s ~/skills/model-routing ~/.claude/skills/model-routing
+ln -s ~/skills/model-routing ~/.agents/skills/model-routing
+```
+
+같은 경로에 이미 스킬이나 링크가 있으면 `ln -s`가 실패한다. 기존 항목을 확인한 뒤 필요한 것만 교체한다.
+
+프로젝트 단위로만 쓰려면 링크 위치를 저장소 안으로 바꾼다.
+
+| 환경 | 개인 스킬 경로 | 프로젝트 스킬 경로 | 명시적 호출 |
+| --- | --- | --- | --- |
+| Claude Code | `~/.claude/skills/model-routing` | `<repo>/.claude/skills/model-routing` | `/model-routing` |
+| Codex | `~/.agents/skills/model-routing` | `<repo>/.agents/skills/model-routing` | `$model-routing` |
+
+ChatGPT의 개인 스킬 생성·설치는 로컬 CLI의 폴더 연결과 별도다.
+
+## 업데이트와 제거
+
+| 설치 방법 | 새 버전 확인 | 업데이트 | 제거 |
+| --- | --- | --- | --- |
+| `npx skills` | `npx skills check` | `npx skills update model-routing` | `npx skills remove model-routing -g` |
+| git clone | `git -C ~/skills/model-routing fetch && git -C ~/skills/model-routing status` | `git -C ~/skills/model-routing pull` | 두 링크와 clone 폴더 삭제 |
+
+업데이트 후에는 진행 중인 세션을 새로 열어야 바뀐 규칙이 적용된다. 바뀐 내용은 저장소의 커밋 기록에서 확인한다.
+
+## 사용법
+
+### 호출 방식
+
+- **자동 호출**: 모델 배치, effort 선택, 작업 분배, 승격 판단이 필요한 요청이면 에이전트가 스킬 설명을 보고 스스로 불러온다.
+- **명시적 호출**: 확실하게 적용하려면 요청 앞에 붙인다. Claude Code는 `/model-routing`, Codex는 `$model-routing`이다.
+
+스킬은 모델을 **고르고 배치표를 만드는** 규칙이다. 실제로 다른 모델을 띄우려면 실행 환경에 서브에이전트·모델 선택 기능이 있어야 한다. 기능이 없으면 스킬은 배치안을 제안만 하고, 실제 실행 모델과 구분해 보고한다.
+
+### 예시 1. 전체 리뷰 후 남은 작업 처리
+
+```text
+/model-routing
+남은 작업을 먼저 정리하고, 코드 리뷰·리팩토링·기존 기능 검증을 마친 뒤 남은 작업을 처리해줘.
+대부분은 Luna 6으로 진행하고, 어려운 부분만 적합한 모델에 배치해줘.
+```
+
+에이전트는 Luna로 상태를 확인해 남은 작업을 먼저 공유하고, 영역별 리뷰 → 수정 → 회귀 검증 → 남은 작업 구현 → 결과 보고 순서로 진행한다.
+
+### 예시 2. 실행 전에 배치표만 받기
+
+```text
+/model-routing
+결제 모듈 리팩토링을 작업 단위로 나눠서, 작업별 모델·effort·근거·완료 기준 표만 먼저 보여줘. 실행은 아직 하지 마.
+```
+
+응답은 다음 형식의 표로 나온다.
+
+| 작업 | 모델 / effort | 선택 근거 | 완료 기준 |
+| --- | --- | --- | --- |
+| 결제 호출부 탐색·의존성 정리 | Luna 6 / low | 범위가 명확한 탐색 | 호출부 목록과 의존 그래프 |
+| DTO·Mapper 분리 | Luna 6 / medium | 일반 구현 | 타입 검사·단위 테스트 통과 |
+| 재시도·멱등성 로직 재설계 | Sol 6.1 / medium | 동시성·불변 조건 보존 | 동시성 테스트 통과 |
+| 리팩토링 결과 독립 리뷰 | Luna 6 / medium (별도 컨텍스트) | 일반 독립 검증 | 리뷰 지적 사항 처리 |
+
+### 예시 3. 실패한 작업을 어디로 넘길지 판단
+
+```text
+/model-routing
+Luna medium으로 이 race condition을 두 번 고쳤는데 테스트가 계속 간헐적으로 실패해. 다음에 어떻게 배치할지 판단해줘.
+```
+
+스킬은 바로 상위 모델로 올리지 않는다. 재현 조건·누락된 증거·환경 문제를 먼저 확인하고, 남은 문제가 깊은 기술 분석이면 어려운 부분만 Sol에 넘긴 뒤 후속 작업은 Luna로 돌려보낸다.
+
+### 예시 4. 화면·문서 작업
+
+```text
+/model-routing
+QA 스크린샷 40장에서 오류 화면을 분류하고 주간 보고서 초안을 써줘.
+```
+
+시각 판독과 보고서 초안은 Luna로 시작하고, 판독이 부족하면 Terra medium으로 넘긴다. 코딩이 아니므로 Sol은 검토 대상이 아니다.
+
+### 예시 5. 모델 제한을 걸어 쓰기
+
+```text
+/model-routing
+이번 작업은 Claude 모델(Sonnet 5.5, Opus 5.5)만 써. 예산은 Opus를 리뷰 한 번에만 쓰는 수준으로.
+```
+
+사용자가 지정한 모델 범위·예산을 스킬 기본값보다 우선한다. 요청한 모델을 쓸 수 없으면 다른 모델로 몰래 대체하지 않고 이유를 알린다.
 
 ## 핵심 원칙
 
@@ -32,6 +169,15 @@ Fable·Gemini 계열은 사용하지 않는다. 나머지 모델은 실제 가�
 
 OpenAI 계열은 Luna < Terra < Sol < Astra 순으로 가격과 역량이 올라간다. Astra는 복잡한 추론과 코딩에도 활용한다. Sonnet은 구현과 리뷰 모두 가능하며, Opus도 설계뿐 아니라 장시간 구현을 담당할 수 있다.
 
+Luna로 부족할 때 다음 단계는 작업 종류로 갈린다.
+
+| 작업 종류 | Luna 다음 단계 |
+| --- | --- |
+| 코딩 (구현·버그 수정·리팩토링·원인 분석) | Sol 6.1 `medium` |
+| 화면·문서 (시각 판독·브라우저·양식·보고서 초안·반복 업무) | Terra 6.1 `medium` |
+| 해석·디자인·리뷰의 다른 관점 | Sonnet 5.5 |
+| 중요한 설계·지속적 판단, 여러 시스템 종합 | Opus 5.5 또는 Astra |
+
 ## effort와 비용
 
 - Luna·Terra·Sol은 일반적으로 `medium`부터 시작한다. 단순 탐색·화면 조작은 `low`를 검토한다. Sol 6.1은 `none`을 지원하지 않는다.
@@ -57,39 +203,11 @@ OpenAI 계열은 Luna < Terra < Sol < Astra 순으로 가격과 역량이 올라
 
 일반 독립 검증은 별도 컨텍스트의 Luna를 우선한다. 전문성이 필요한 부분만 다른 모델에 맡긴다. 이미 승인·위임받은 범위는 반복 확인하지 않는다.
 
-## 로컬 CLI 설치
+## 수정과 기여
 
-`SKILL.md`가 있는 이 폴더를 Claude Code와 Codex의 스킬 경로에 연결하면 같은 내용을 공유할 수 있다. 다음 명령은 이 폴더에서 실행한다.
-
-```bash
-routing_skill_dir="$(pwd -P)"
-test -f "$routing_skill_dir/SKILL.md" || exit 1
-mkdir -p "$HOME/.claude/skills" "$HOME/.agents/skills"
-ln -s "$routing_skill_dir" "$HOME/.claude/skills/model-routing"
-ln -s "$routing_skill_dir" "$HOME/.agents/skills/model-routing"
-```
-
-같은 경로가 이미 있으면 링크 생성은 실패한다. 기존 스킬이나 링크를 확인한 뒤 필요한 항목만 교체한다.
-
-| 환경 | 개인 스킬 경로 | 프로젝트 스킬 경로 | 명시적 호출 |
-| --- | --- | --- | --- |
-| Claude Code | `~/.claude/skills/model-routing` | `<repo>/.claude/skills/model-routing` | `/model-routing` |
-| Codex | `~/.agents/skills/model-routing` | `<repo>/.agents/skills/model-routing` | `$model-routing` |
-
-프로젝트 단위로만 사용하려면 표의 프로젝트 경로 아래에 동일한 폴더를 연결한다. ChatGPT의 개인 스킬 생성·설치와 로컬 CLI의 폴더 연결은 별도다.
-
-## 사용 예시
-
-Claude Code:
-
-```text
-/model-routing
-남은 작업을 먼저 정리하고, 코드 리뷰·리팩토링·기존 기능 검증을 마친 뒤 남은 작업을 처리해줘.
-대부분은 Luna 6으로 진행하고, 어려운 부분만 적합한 모델에 배치해줘.
-Fable과 Gemini는 사용하지 마.
-```
-
-Codex에서는 위 요청의 `/model-routing`을 `$model-routing`으로 바꿔 호출한다.
+- 규칙의 기준은 `SKILL.md`다. README는 요약과 사용법이므로 규칙을 바꾸면 두 파일을 함께 고친다.
+- 모델·가격·벤치마크 수치를 추가할 때는 `SKILL.md` 마지막 절에 출처와 확인일을 남긴다. 공식 출처가 아니면 보조 자료로 구분한다.
+- 변경은 이슈나 PR로 제안한다. `main`에 반영되면 사용자는 [업데이트](#업데이트와-제거) 명령으로 받는다.
 
 ## 공식 문서
 
@@ -102,3 +220,4 @@ Codex에서는 위 요청의 `/model-routing`을 `$model-routing`으로 바꿔 �
 - [Claude effort](https://platform.claude.com/docs/en/build-with-claude/effort)
 - [Claude Code 스킬 설치](https://code.claude.com/docs/en/skills)
 - [Codex 스킬 설치](https://learn.chatgpt.com/docs/build-skills)
+- [skills CLI (`npx skills`)](https://github.com/vercel-labs/skills)
