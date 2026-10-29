@@ -265,7 +265,7 @@ QA 스크린샷 40장에서 오류 화면을 분류하고 주간 보고서 초�
 | 🎻 **Opus 5.5** | Claude 쪽 어려운 코딩·디버깅, 정밀 시각 판독, 최종 보고서, 장시간 연구 | `high`, `max`는 쓰지 않음 |
 | ➕ **그 밖의 사용 가능한 모델** | 공식 기능·비용·실제 가용성과 독립 측정을 확인하고 작업에 적합할 때 선택 | |
 
-작업 유형별 1순위 요약이다. 승격 경로와 수치 근거는 [`SKILL.md`](SKILL.md) §4에 있다.
+작업 유형별 1순위 요약이다. 승격 경로와 근거는 [`references/placement.md`](references/placement.md), 수치는 [`references/models.md`](references/models.md)에 있다.
 
 | 작업 유형 | Codex (OpenAI) | Claude | 근거 강도 |
 | --- | --- | --- | --- |
@@ -298,7 +298,7 @@ QA 스크린샷 40장에서 오류 화면을 분류하고 주간 보고서 초�
 - Sonnet 5.5의 `high` 이상이 필요하면 Opus 5.5 `high`와 비교한다. Anthropic의 effort 곡선에서 Opus `high`(64.2%·$3.88)가 Sonnet `xhigh`(61.5%·$5.30)보다 점수는 높고 비용은 낮았다(제조사 발표).
 - Haiku 5.5는 `low`에서 긴 에이전트 프롬프트를 받으면 확인을 생략하고 일찍 멈출 수 있다. 수정·추출은 `medium`에 두고 테스트 실행을 지시한다. 프롬프트가 100K 토큰을 넘는 요청은 전체가 5배 요율이다.
 - 실제 실행 인터페이스에서 지원하는 effort만 사용한다. API의 지원 값과 앱·CLI 설정을 구분한다.
-- 단가뿐 아니라 사용 토큰, 재시도, 검증, 인계 비용까지 고려한다. 상세 가격 기준일과 공식 출처는 [`SKILL.md`](SKILL.md)를 참조한다.
+- 단가뿐 아니라 사용 토큰, 재시도, 검증, 인계 비용까지 고려한다. 상세 가격과 기준일은 [`references/models.md`](references/models.md), 출처는 [`references/sources.md`](references/sources.md)를 참조한다.
 
 ## orchestration과 함께 사용
 
@@ -317,8 +317,8 @@ QA 스크린샷 40장에서 오류 화면을 분류하고 주간 보고서 초�
 
 ## 수정과 기여
 
-- 규칙의 기준은 `SKILL.md`다. README는 요약과 사용법이므로 규칙을 바꾸면 두 파일을 함께 고친다.
-- 모델·가격·벤치마크 수치를 추가할 때는 `SKILL.md` 마지막 절에 출처와 확인일을 남기고, 본문 수치에 `[독립]`·`[제조사]`·`[2차]`를 붙인다. Artificial Analysis 지수는 버전이 다른 점수끼리 비교하지 않는다.
+- 규칙의 기준은 `SKILL.md`와 `references/`다. README는 요약과 사용법이므로 규칙을 바꾸면 함께 고친다.
+- 모델·가격·벤치마크 수치를 추가할 때는 `references/sources.md`에 출처와 확인일을 남기고, 본문 수치에 `[독립]`·`[제조사]`·`[2차]`를 붙인다. Artificial Analysis 지수는 버전이 다른 점수끼리 비교하지 않는다.
 - 변경은 이슈나 PR로 제안한다. `main`에 반영되면 사용자는 [업데이트](#업데이트와-제거) 명령으로 받는다.
 - 배포할 변경은 `.claude-plugin/plugin.json`의 `version`(semver)을 올린 뒤 push한다. 버전을 그대로 두면 Claude Code 플러그인 사용자는 이전 사본을 계속 쓴다. 규칙 문구 수정은 patch, 배치 규칙 추가·변경은 minor, 호환되지 않는 구조 변경은 major를 올린다.
 - 매니페스트를 고친 뒤에는 저장소 루트에서 `claude plugin validate . --strict --profile directory`를 실행한다.
@@ -328,7 +328,11 @@ QA 스크린샷 40장에서 오류 화면을 분류하고 주간 보고서 초�
 
 ```text
 model-routing/
-├── SKILL.md                     # 라우팅 규칙 원문 (스킬 본체)
+├── SKILL.md                     # 라우팅 절차와 원칙 (스킬 본체)
+├── references/
+│   ├── placement.md             # 작업 유형별 배치표·예시
+│   ├── models.md                # 모델별 근거 수치·단가
+│   └── sources.md               # 출처와 확인일
 ├── README.md                    # 설치·사용법·요약
 ├── PRIVACY.md                   # 개인정보 처리방침
 ├── LICENSE                      # MIT
