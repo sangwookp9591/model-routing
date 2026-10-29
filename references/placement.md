@@ -58,6 +58,22 @@
 - OpenAI 계열 T1 코딩은 Terra medium에서 시작해 high까지 쓴다. 그 이상이 필요하면 effort를 올리지 말고 Sol medium으로 바꾼다.
 - Claude 계열 하위 에이전트에 Haiku를 쓰려면 에이전트 정의에 `model: claude-haiku-5-5`를 적는다.
 
+## 오픈 모델 대안
+
+배치표의 1순위 계열을 쓸 수 없거나 그 계열의 예산이 부족할 때, 또는 하네스·과금상 오픈 모델이 실제 선택지일 때만 쓴다. 모델 정보와 운영 주의는 `references/models.md`의 오픈 모델 절에 있다.
+
+| 등급·능력 | 오픈 모델 | 쓰는 조건 | 근거 | 강도 |
+| --- | --- | --- | --- | --- |
+| T1 코딩 | GLM-5.3-Flash | Haiku·Terra를 쓸 수 없거나 그쪽 예산이 부족할 때 | [독립] Terminal-Bench 4.0 Snorkel 35.8%, Vals.ai 37.4%·$1.22 (Haiku 5.5 36.4%·$3.12). DeepSWE 63%·$0.24 | 중간 |
+| T1 코딩 (프런트엔드 초안) | DeepSeek V4.1 Flash 1017 | 저가 초안. 미국·유럽 호스팅 제공사 우선 | [독립] arena WebDev 1665 ≈ Terra max 1673. 에이전트 코딩 독립 측정 없음 | 낮음 |
+| T1 시각 (정밀 판독) | Qwen3.8 Max | 다른 계열의 정밀 판독을 쓸 수 없을 때. 작업당 비용이 높다 | [독립] arena Vision 1300(2위) > Sol 1294 ≈ Opus 1293 | 중간 |
+| T2 코딩 (긴 터미널 작업) | Kimi K3.1 Pro / max | Opus를 쓸 수 없거나 Claude 계열 예산이 부족할 때. Sol을 쓸 수 있으면 Sol이 더 싸다 | [독립] Terminal-Bench 4.0 Vals.ai 63.6%·$4.57, Artificial Analysis 67.2% (Opus 5.5 65.2%·$13.20, Sol 6.1 55.1%·$1.72) | 중간~높음 |
+
+- T0는 오픈 모델을 쓰지 않는다. Luna low·Haiku low가 더 싸다.
+- 보안 리뷰·보안 작업에는 오픈 모델을 배치하지 않는다.
+- 회사 코드나 민감한 데이터는 사용자 확인 없이 중국 회사의 공식 API로 보내지 않는다.
+- Qwen3.8 Max(코딩)와 MiniMax-M3.1-Flash는 종합 지수에서 다른 모델에 지배되므로 배치하지 않는다.
+
 ## 단계 분해 예시
 
 **버그 수정**

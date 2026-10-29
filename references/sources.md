@@ -36,3 +36,22 @@
 - [Artificial Analysis: GPT-6.1 Terra 분석 기사](https://artificialanalysis.ai/articles/gpt-6-1-terra-pushes-the-cost-efficiency-frontier)
 - [GeekNews: GPT-6.1 Terra 공개](https://news.hada.io/topic?id=36059)
 - [GeekNews: Claude Sonnet 5.5 출시](https://news.hada.io/topic?id=34444)
+
+오픈 모델 (2026-10-29 확인):
+
+- [Vals.ai Terminal-Bench 4.0](https://www.vals.ai/benchmarks/terminal-bench-4) [독립]
+- [arena WebDev](https://arena.ai/leaderboard/code/webdev), [arena Vision](https://arena.ai/leaderboard/chat/vision) [독립]
+- [DeepSeek API 문서·가격](https://api-docs.deepseek.com/quick_start/pricing), [DeepSeek 개인정보 처리방침](https://cdn.deepseek.com/policies/en-US/deepseek-privacy-policy.html)
+- [GLM-5.3 (Z.ai)](https://docs.z.ai/guides/llm/glm-5.3)
+- [MiniMax 모델 릴리스 노트](https://platform.minimax.io/docs/release-notes/models)
+- [Anthropic: GLM-5.3과 고급 사이버 능력의 확산](https://www.anthropic.com/research/glm-5-3-and-the-spread-of-advanced-cyber-capabilities)
+
+하네스·과금 (2026-10-29 확인):
+
+- [Claude Code 비용과 사용량](https://code.claude.com/docs/en/costs), [상태 표시줄](https://code.claude.com/docs/en/statusline), [권한 모드](https://code.claude.com/docs/en/permission-modes)
+- [Codex 가격과 한도](https://learn.chatgpt.com/docs/pricing), [Codex 하위 에이전트](https://developers.openai.com/codex/subagents), [Codex 승인과 보안](https://developers.openai.com/codex/agent-approvals-security)
+- [OpenCode 에이전트](https://opencode.ai/docs/agents), [OpenCode Go](https://opencode.ai/docs/go/)
+- [Antigravity 모델](https://antigravity.google/docs/models), [하위 에이전트](https://antigravity.google/docs/subagents), [플랜](https://antigravity.google/docs/plans)
+- [GitHub Copilot 지원 모델](https://docs.github.com/en/copilot/reference/ai-models/supported-models), [Copilot 개인 과금](https://docs.github.com/en/copilot/concepts/billing-and-usage/individuals/billing)
+- [Cursor 하위 에이전트](https://cursor.com/docs/context/subagents), [Cursor 모델과 가격](https://cursor.com/docs/models)
+- [vercel-labs/skills 에이전트 목록](https://github.com/vercel-labs/skills/blob/main/docs/agents.md)

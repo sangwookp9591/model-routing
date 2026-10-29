@@ -1,6 +1,6 @@
 ---
 name: model-routing
-description: 사용자의 구독·크레딧·남은 사용량 안에서 작업 단계마다 모델과 effort를 배치하는 규칙. 하네스(Claude Code, Codex, OpenCode, Copilot, Cursor 등)와 과금 방식을 확인하고, 결과를 검증할 수 있는 단계는 싼 모델에, 어려운 단계만 상위 모델에 근거와 함께 배치한다. 대상 모델은 Luna 6, Terra 6.1, Sol 6.1, Astra, Haiku 5.5, Sonnet 5.5, Opus 5.5이고 Fable·Gemini는 제외. 작업별 모델 배치, 사용량 절약, orchestration의 모델 선택에 사용.
+description: 사용자의 구독·크레딧·남은 사용량 안에서 작업 단계마다 모델과 effort를 배치하는 규칙. 하네스(Claude Code, Codex, OpenCode, Copilot, Cursor 등)와 과금 방식을 확인하고, 결과를 검증할 수 있는 단계는 싼 모델에, 어려운 단계만 상위 모델에 근거와 함께 배치한다. 대상 모델은 Luna 6, Terra 6.1, Sol 6.1, Astra, Haiku 5.5, Sonnet 5.5, Opus 5.5이고, 근거가 있는 자리에 한해 Kimi·GLM·DeepSeek·Qwen 오픈 모델도 쓴다. Fable·Gemini는 제외. 작업별 모델 배치, 사용량 절약, orchestration의 모델 선택에 사용.
 ---
 
 # 구독·사용량에 맞춘 모델 라우팅
@@ -40,6 +40,7 @@ description: 사용자의 구독·크레딧·남은 사용량 안에서 작업 �
 - 어려운 코딩·디버깅은 Sol 6.1 medium에서 시작한다. Claude 환경에서는 Opus 5.5 high다.
 - 회사를 넘나드는 모델 비교는 독립 측정으로 한다. 제조사 발표치는 Anthropic은 독립 측정보다 높게, OpenAI는 같거나 낮게 나오는 경향이 있었다.
 - 근거 강도가 낮은 배치(배치표의 '낮음')는 실제 과제 몇 건으로 채점해 본 뒤 확정한다.
+- 오픈 모델(Kimi, GLM, DeepSeek, Qwen, MiniMax)은 1순위 계열을 쓸 수 없거나 그 계열 예산이 부족할 때, 또는 독립 근거상 더 나은 자리에만 쓴다(`references/placement.md`의 오픈 모델 대안). 회사 코드나 민감한 데이터를 해외 공식 API로 보낼 때는 먼저 사용자에게 확인한다.
 - 계획·리뷰라는 이유만으로 Claude를, 브라우저·화면 조작이라는 이유만으로 Astra를, 파일이 많다는 이유만으로 Sol을 선택하지 않는다.
 - Fable·Gemini 계열을 기본 배치, 승격, 대체, 독립 검증에서 모두 제외한다. 이 정책을 피하려고 별칭을 사용하지 않는다.
 - 사용 가능한 나머지 모델을 폭넓게 검토한다. `references/models.md`의 모델 표를 고정 허용 목록이나 공식 성능 순위로 해석하지 않는다.
@@ -88,7 +89,7 @@ description: 사용자의 구독·크레딧·남은 사용량 안에서 작업 �
 - 모든 작업을 high로 시작하지 않는다. xhigh·max는 평가 결과나 남은 문제에 근거해 사용한다.
 - 모델과 effort는 원칙적으로 한 번에 하나씩 변경한다. 동시에 바꿀 필요가 있으면 이유를 기록한다.
 - effort는 엄격한 비용 한도가 아니다. 실제 토큰·도구 호출·재시도 비용을 확인한다.
-- Terra가 high로 부족하면 xhigh·max로 올리지 말고 Sol medium·high로 바꾼다. AA v5.0에서 Terra xhigh(45점·$0.40)는 Sol medium(46점·$0.36)보다 낮고 비쌌고, Terra max(51점·$0.96·83초)는 Sol high(50점·$0.59·48초)와 비슷한 점수에 비용 약 1.6배, 시간 약 1.7배였다 [독립].
+- Terra가 high로 부족하면 xhigh·max로 올리지 말고 Sol medium·high로 바꾼다. AA v5.0에서 Terra xhigh(45점·$0.40)는 Sol medium(46점·$0.36)보다 낮고 비쌌고, Terra max(51점·$0.96·150초)는 Sol high(50점·$0.59·38초)와 비슷한 점수에 비용 약 1.6배, 시간 약 4배였다 [독립].
 - 구독형 Codex에서 OpenAI는 같은 사용 한도로 Terra가 Sol·Astra보다 상당히 많은 작업을 처리한다고 안내한다 [제조사]. effort를 올리면 작업당 토큰이 늘어 이 이점이 줄어든다. 한도 절약을 이유로 Terra high 이상을 고르지 않는다.
 - Sonnet 5.5의 high 이상이 필요하면 Opus 5.5 high와 비교한다. Anthropic의 effort 곡선에서 Opus high(64.2%·$3.88)가 Sonnet xhigh(61.5%·$5.30)보다 점수는 높고 비용은 낮았다 [제조사].
 - Sonnet 5.5의 max를 기본 상한으로 쓰지 않는다. FrontierCode에서는 xhigh가 max보다 높았고, max는 범위 밖 변경과 시간 초과가 늘 수 있다.
