@@ -1,7 +1,7 @@
 {
   "name": "model-routing",
-  "version": "1.0.0",
-  "description": "Model-routing rules for coding agents. Keeps most work on GPT-6 Luna and assigns only the hard parts to Terra 6.1, Sol 6.1, Sonnet 5.5, Opus 5.5 or Astra, with per-model effort and cost guidance. Excludes Fable and Gemini.",
+  "version": "2.0.0",
+  "description": "Model-routing rules for coding agents. Splits work into steps and gives each step a model and effort (GPT-6 Luna, Terra 6.1, Sol 6.1, Astra, Claude Haiku 5.5, Sonnet 5.5, Opus 5.5) based on whether its output can be checked, with evidence from independent benchmarks. Excludes Fable and Gemini.",
   "author": {
     "name": "sangwookp9591"
   },
@@ -12,7 +12,8 @@
     "model-routing",
     "orchestration",
     "effort",
-    "cost"
+    "cost",
+    "benchmarks"
   ],
   "documentationUrl": "https://github.com/sangwookp9591/model-routing#readme",
   "supportUrl": "https://github.com/sangwookp9591/model-routing/issues",

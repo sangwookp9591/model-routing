@@ -1,6 +1,6 @@
 {
   "name": "model-routing",
-  "description": "Luna 6 우선 모델 라우팅 스킬 마켓플레이스",
+  "description": "검증 가능성 기준 모델 라우팅 스킬 마켓플레이스",
   "owner": {
     "name": "sangwookp9591"
   },
@@ -8,7 +8,7 @@
     {
       "name": "model-routing",
       "source": "./",
-      "description": "Luna 6 우선 모델 라우팅 규칙 스킬"
+      "description": "작업 단계별 모델·effort 배치 규칙 스킬 (독립 벤치마크 근거)"
     }
   ]
 }

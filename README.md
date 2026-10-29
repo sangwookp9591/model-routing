@@ -4,16 +4,16 @@
 
 # model-routing
 
-**대부분은 Luna 6으로, 어려운 부분만 맞는 모델에게.**
+**검증할 수 있는 단계는 싸게, 어려운 단계만 맞는 모델에게.**
 
-작업을 쪼개고, 작업마다 모델과 effort를 고르고, 막혔을 때 어디로 넘길지 정하는<br>
+작업을 처리 단계로 나누고, 단계마다 모델과 effort를 근거와 함께 고르고, 막혔을 때 어디로 넘길지 정하는<br>
 Claude Code · Codex 공용 에이전트 스킬
 
 [![version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsangwookp9591%2Fmodel-routing%2Fmain%2F.claude-plugin%2Fplugin.json&query=%24.version&label=version&color=4f46e5)](.claude-plugin/plugin.json)
 [![license](https://img.shields.io/github/license/sangwookp9591/model-routing?color=22c55e)](LICENSE)
 [![Claude Code plugin](https://img.shields.io/badge/Claude_Code-plugin-d97757)](#방법-2-claude-code-플러그인)
 [![Codex skill](https://img.shields.io/badge/Codex-skill-111827)](#방법-1-npx-skills-권장)
-[![default model](https://img.shields.io/badge/default-Luna_6-0ea5e9)](#모델-배치)
+[![evidence](https://img.shields.io/badge/evidence-independent_benchmarks-0ea5e9)](#근거로-쓴-측정)
 
 [빠른 시작](#빠른-시작) · [사용법](#사용법) · [라우팅 흐름](#라우팅-흐름) · [모델 배치](#모델-배치) · [effort와 비용](#effort와-비용) · [규칙 원문 `SKILL.md`](SKILL.md)
 
@@ -41,30 +41,32 @@ npx skills add sangwookp9591/model-routing -g -a claude-code codex -y
 
 | | |
 | --- | --- |
-| 🧩 **작업 분해** | 요청을 범위와 완료 기준이 분명한 작업으로 나눈다 |
-| 🎯 **모델 배치** | 작업마다 가장 경제적으로 처리할 수 있는 모델을 고른다. 기본은 Luna 6 |
-| 🎚️ **effort 선택** | `low`/`medium`에서 시작하고, 근거가 있을 때만 올린다 |
-| 🪜 **승격과 복귀** | 막힌 부분만 상위 모델에 넘기고, 풀리면 다시 Luna로 돌아온다 |
-| 💸 **비용 관리** | 토큰 단가가 아니라 작업당 비용(토큰·재시도·검증·인계)으로 판단한다 |
+| 🧩 **단계 분해** | 요청을 처리 단계로 나누고, 단계마다 결과를 어떻게 확인할지 정한다 |
+| 🎯 **모델 × effort 배치** | 단계마다 필요한 품질을 가장 싸게 내는 모델과 effort 조합을 고른다. Codex·Claude 환경별로 따로 |
+| 📊 **근거 표시** | 배치마다 독립 측정·제조사 발표 출처와 근거 강도(높음·중간·낮음)를 붙인다 |
+| 🪜 **승격과 복귀** | effort를 끝까지 올리지 않고 다음 모델의 중간 effort로 넘기며, 풀리면 1순위 모델로 돌아온다 |
+| 💸 **비용 관리** | 토큰 단가가 아니라 작업당 비용(토큰·재시도·검증·인계)과 시간으로 판단한다 |
 | 🚫 **제외 모델** | Fable·Gemini 계열은 배치·승격·대체·검증 어디에도 쓰지 않는다 |
 
 ## 라우팅 흐름
 
 ```mermaid
 flowchart LR
-    A([요청]) --> B[작업 분해<br/>완료 기준 정의]
-    B --> C{{Luna 6<br/>low · medium}}
-    C -->|완료| Z([검증 · 보고])
-    C -->|부족| D{남은 문제의 종류}
-    D -->|코딩 · 디버깅| E[Sol 6.1<br/>medium]
-    D -->|화면 · 문서 · 반복 업무| F[Terra 6.1<br/>medium]
-    D -->|다른 관점 · 리뷰| G[Sonnet 5.5]
-    D -->|설계 · 여러 시스템 종합| H[Opus 5.5 / Astra]
-    E & F & G & H -->|어려운 부분 해결| C
+    A([요청]) --> B[처리 단계로 분해]
+    B --> C{단계의 성격}
+    C -->|검증 가능한 탐색 · 분류| D[Luna low<br/>Haiku low]
+    C -->|일반 구현 · 판독 · 리뷰| E[Terra medium<br/>Haiku · Sonnet medium]
+    C -->|어려운 코딩 · 디버깅| F[Sol medium<br/>Opus high]
+    C -->|권한 경계 조작| G[Sol medium<br/>Sonnet high]
+    D & E & F & G --> V([테스트 · 대조로 검증])
+    V -->|부족| U[effort 대신<br/>다음 모델의 중간 effort]
+    U --> V
 ```
 
+각 노드의 위 줄은 Codex(OpenAI), 아래 줄은 Claude 환경의 1순위다.
+
 > [!IMPORTANT]
-> 코딩에서 Terra가 부족하면 **effort를 올리지 말고 Sol로 바꾼다.** Terminal-Bench 4.0에서 Terra `max`는 50.3%·작업당 $1.84, Sol `medium`은 52.7%·$1.02였다. Terra는 화면·문서 쪽에서 강하다. 같은 점수를 Astra보다 약 1/16 비용으로 냈다.
+> 더 높은 품질이 필요하면 **effort를 끝까지 올리지 말고 다음 모델의 중간 effort로 바꾼다.** Artificial Analysis Intelligence Index v5.0(독립 측정)에서 Luna `max`(28점·작업당 $0.15)는 Terra `low`(29점·$0.07)보다 낮았고, Terra `max`(51점·$0.96·83초)는 Sol `high`(50점·$0.59·48초)와 비슷한 점수에 더 비싸고 느렸다.
 
 ## 설치
 
@@ -180,10 +182,10 @@ ChatGPT의 개인 스킬 생성·설치는 로컬 CLI의 폴더 연결과 별도
 ```text
 /model-routing
 남은 작업을 먼저 정리하고, 코드 리뷰·리팩토링·기존 기능 검증을 마친 뒤 남은 작업을 처리해줘.
-대부분은 Luna 6으로 진행하고, 어려운 부분만 적합한 모델에 배치해줘.
+검증할 수 있는 단계는 싼 모델로, 어려운 부분만 적합한 모델에 배치해줘.
 ```
 
-에이전트는 Luna로 상태를 확인해 남은 작업을 먼저 공유하고, 영역별 리뷰 → 수정 → 회귀 검증 → 남은 작업 구현 → 결과 보고 순서로 진행한다.
+에이전트는 탐색 단계 모델(Luna low 또는 Haiku low)로 상태를 확인해 남은 작업을 먼저 공유하고, 영역별 리뷰 → 수정 → 회귀 검증 → 남은 작업 구현 → 결과 보고 순서로 진행한다.
 
 ### 예시 2. 실행 전에 배치표만 받기
 
@@ -192,14 +194,16 @@ ChatGPT의 개인 스킬 생성·설치는 로컬 CLI의 폴더 연결과 별도
 결제 모듈 리팩토링을 작업 단위로 나눠서, 작업별 모델·effort·근거·완료 기준 표만 먼저 보여줘. 실행은 아직 하지 마.
 ```
 
-응답은 다음 형식의 표로 나온다.
+Codex 환경에서는 다음 형식의 표로 나온다.
 
-| 작업 | 모델 / effort | 선택 근거 | 완료 기준 |
+| 작업 단계 | 모델 / effort | 선택 근거 (근거 강도) | 결과 확인 방법 |
 | --- | --- | --- | --- |
-| 결제 호출부 탐색·의존성 정리 | Luna 6 / low | 범위가 명확한 탐색 | 호출부 목록과 의존 그래프 |
-| DTO·Mapper 분리 | Luna 6 / medium | 일반 구현 | 타입 검사·단위 테스트 통과 |
-| 재시도·멱등성 로직 재설계 | Sol 6.1 / medium | 동시성·불변 조건 보존 | 동시성 테스트 통과 |
-| 리팩토링 결과 독립 리뷰 | Luna 6 / medium (별도 컨텍스트) | 일반 독립 검증 | 리뷰 지적 사항 처리 |
+| 결제 호출부 탐색·의존성 정리 | Luna 6 / low | 검증 가능한 탐색 (중간) | 호출부 목록과 의존 그래프 |
+| DTO·Mapper 분리 | Terra 6.1 / medium | 범위가 정해진 일반 구현 (Terra 코딩은 낮음) | 타입 검사·단위 테스트 통과 |
+| 재시도·멱등성 로직 재설계 | Sol 6.1 / medium | 동시성·불변 조건 보존이 걸린 어려운 코딩 (중간~높음) | 동시성 테스트 통과 |
+| 리팩토링 결과 독립 리뷰 | Terra 6.1 / medium (별도 컨텍스트) | 코드 리뷰 1순위, 구현과 다른 컨텍스트 (낮음) | 리뷰 지적 사항 처리 |
+
+Claude Code에서는 같은 단계가 Haiku 5.5 low → Haiku 5.5 medium → Opus 5.5 high → Sonnet 5.5 medium으로 배치된다.
 
 <details>
 <summary><b>예시 3~5 더 보기</b> · 실패한 작업 넘기기, 화면·문서 작업, 모델 제한</summary>
@@ -208,10 +212,10 @@ ChatGPT의 개인 스킬 생성·설치는 로컬 CLI의 폴더 연결과 별도
 
 ```text
 /model-routing
-Luna medium으로 이 race condition을 두 번 고쳤는데 테스트가 계속 간헐적으로 실패해. 다음에 어떻게 배치할지 판단해줘.
+Terra medium으로 이 race condition을 두 번 고쳤는데 테스트가 계속 간헐적으로 실패해. 다음에 어떻게 배치할지 판단해줘.
 ```
 
-스킬은 바로 상위 모델로 올리지 않는다. 재현 조건·누락된 증거·환경 문제를 먼저 확인하고, 남은 문제가 깊은 기술 분석이면 어려운 부분만 Sol에 넘긴 뒤 후속 작업은 Luna로 돌려보낸다.
+스킬은 바로 상위 모델로 올리지 않는다. 재현 조건·누락된 증거·환경 문제를 먼저 확인한다. 동시성 문제는 어려운 디버깅에 해당하므로 Terra의 effort를 올리지 않고 어려운 부분만 Sol 6.1 medium(Claude Code면 Opus 5.5 high)에 넘긴 뒤, 후속 작업은 1순위 모델로 돌려보낸다.
 
 ### 예시 4. 화면·문서 작업
 
@@ -220,13 +224,13 @@ Luna medium으로 이 race condition을 두 번 고쳤는데 테스트가 계속
 QA 스크린샷 40장에서 오류 화면을 분류하고 주간 보고서 초안을 써줘.
 ```
 
-시각 판독과 보고서 초안은 Luna로 시작하고, 판독이 부족하면 Terra medium으로 넘긴다. 코딩이 아니므로 Sol은 검토 대상이 아니다.
+스크린샷 분류는 시각 판독 단계라 Terra medium(Claude Code면 단순 판독은 Haiku medium, 정밀 판독은 Opus high)에 두고, 사람에게 나가는 보고서 초안은 Sol medium 또는 Sonnet high로 나눈다. 시각 판독은 근거 강도가 '낮음'이라 처음 몇 장은 정답과 대조해 채점한 뒤 배치를 확정한다.
 
 ### 예시 5. 모델 제한을 걸어 쓰기
 
 ```text
 /model-routing
-이번 작업은 Claude 모델(Sonnet 5.5, Opus 5.5)만 써. 예산은 Opus를 리뷰 한 번에만 쓰는 수준으로.
+이번 작업은 Claude 모델(Haiku 5.5, Sonnet 5.5, Opus 5.5)만 써. 예산은 Opus를 리뷰 한 번에만 쓰는 수준으로.
 ```
 
 사용자가 지정한 모델 범위·예산을 스킬 기본값보다 우선한다. 요청한 모델을 쓸 수 없으면 다른 모델로 몰래 대체하지 않고 이유를 알린다.
@@ -235,48 +239,64 @@ QA 스크린샷 40장에서 오류 화면을 분류하고 주간 보고서 초�
 
 ## 핵심 원칙
 
-- 탐색, 계획, 구현, 일반 설계, 리팩토링, 리뷰, 테스트, 문서 작성은 **Luna 6을 우선**한다.
-- 작업을 분해하고 완료 기준을 정한 뒤 필요한 역량에 맞춰 모델과 effort를 선택한다.
-- 복잡한 부분만 전문 모델에 맡기고, 해결 후 일반 작업은 Luna로 진행한다.
+- 배치 단위는 **모델 × effort**다. 토큰 단가가 아니라 작업당 비용과 시간으로 비교한다.
+- 작업을 처리 단계로 나누고 단계마다 배치한다. 작업 전체를 한 모델에 맡기지 않는다.
+- 결과를 테스트·스크립트·상위 모델이 다시 확인할 수 있는 단계는 **가장 싼 모델**(Luna 6 또는 Haiku 5.5, low~medium)에 둔다. 확인 없이 사람·커밋·배포로 나가는 단계는 한 단계 위 모델에 둔다.
+- 더 높은 품질이 필요하면 effort를 끝까지 올리지 말고 **다음 모델의 중간 effort**로 바꾼다.
+- 어려운 코딩·디버깅은 Sol 6.1 `medium`, Claude 환경에서는 Opus 5.5 `high`에서 시작한다.
+- 회사를 넘는 비교는 **독립 측정**으로 한다. 근거 강도가 낮은 배치는 실제 과제 몇 건으로 채점해 확정한다.
+- Terra에 배치할 때는 **권한·승인 설정을 끄지 않고**, 로그인·결제·삭제 같은 권한 경계 작업에는 쓰지 않는다.
 - 계획·리뷰라는 이유만으로 Claude를, 브라우저·화면 조작이라는 이유만으로 Astra를 선택하지 않는다.
-- 시각 판독·컴퓨터 사용·글쓰기가 핵심이고 Luna로 부족하면 Astra보다 Terra를 먼저 검토한다.
-- Luna로 부족한 코딩·어려운 디버깅은 **Terra를 거치지 않고 Sol**에 맡긴다. Terra는 반값이지만 코딩에서는 effort를 끝까지 올려야 해서 작업당 비용이 Sol보다 커진다.
-- Terra에 배치할 때는 **권한·승인 설정을 끄지 않는다.**
 - Fable·Gemini는 승격, 대체 모델, 독립 검증에서도 제외한다.
 - 모델 선택만으로 새로운 도구나 권한이 생기지는 않는다. 실행 환경의 실제 지원 여부를 확인한다.
 
 ## 모델 배치
 
-아래는 공식 용도를 바탕으로 한 운영상 배치 예시이며, 고정 허용 목록이나 절대 성능 순위가 아니다.
+아래는 공식 용도와 독립 측정을 바탕으로 한 운영상 배치이며, 고정 허용 목록이나 절대 성능 순위가 아니다.
 
-| 모델 | 주요 배치 |
-| --- | --- |
-| 🌙 **Luna 6** | 대부분의 작업의 기본 담당자. 명확한 범위의 구현·계획·리뷰·검증 |
-| 🌍 **Terra 6.1** | 스크린샷·문서 판독, 보고서 초안, 브라우저 작업, 양식 입력, 반복 업무 (`medium`). 코딩의 중간 단계로는 쓰지 않음 |
-| ☀️ **Sol 6.1** | 코딩 메인, 어려운 디버깅, 동시성, 성능, 원인 분석, 어려운 에이전트 작업 |
-| 🎼 **Sonnet 5.5** | 일상 개발, 빠른 반복, UI 개선, 코드 리뷰, 요구사항 해석, 문서·슬라이드 완성도 개선, 하위 에이전트 |
-| 🎻 **Opus 5.5** | 장시간 코딩, 큰 리팩토링·마이그레이션, 지속적인 설계 판단과 중요 리뷰 |
-| ✨ **Astra** | 어려운 추론·코딩, 여러 시스템을 종합하는 분석, 복합 도구 작업 |
-| ➕ **그 밖의 사용 가능한 모델** | 공식 기능·비용·실제 가용성을 확인하고 작업에 적합할 때 선택 |
+| 모델 | 맡는 단계 | effort |
+| --- | --- | --- |
+| 🌙 **Luna 6** | 결과를 검증할 수 있는 기계적 단계: 탐색, 분류, 빌드·테스트 실행, 단일 파일 기계적 편집 | `low`~`medium` |
+| 🌍 **Terra 6.1** | Codex 쪽 일반 작업의 기본: 일반 구현, 계획, 리뷰, 시각 판독, 원문 기반 요약·추출. 권한 경계 작업은 제외 | `medium`, `high`까지 |
+| ☀️ **Sol 6.1** | 어려운 코딩·디버깅, 권한 경계 화면 조작, 사람에게 나가는 글의 초안 | `medium` → `high` |
+| ✨ **Astra** | 저장소 단위 수정·마이그레이션, 장시간 연구, 여러 시스템 종합 | `high`, 저장소 단위는 `xhigh` |
+| 🍃 **Haiku 5.5** | Claude 쪽 검증 가능한 단계와 하위 에이전트: 탐색, 분류, 범위가 정해진 구현, 주어진 문서에서 추출 | `low`~`medium` |
+| 🎼 **Sonnet 5.5** | Claude 쪽 판단이 들어가는 단계: 계획, 코드 리뷰, 글 초안, 다단계 화면 조작 | `medium`~`high`, `xhigh`가 상한 |
+| 🎻 **Opus 5.5** | Claude 쪽 어려운 코딩·디버깅, 정밀 시각 판독, 최종 보고서, 장시간 연구 | `high`, `max`는 쓰지 않음 |
+| ➕ **그 밖의 사용 가능한 모델** | 공식 기능·비용·실제 가용성과 독립 측정을 확인하고 작업에 적합할 때 선택 | |
 
-OpenAI 계열은 Luna < Terra < Sol < Astra 순으로 가격과 역량이 올라간다. Astra는 복잡한 추론과 코딩에도 활용한다. Sonnet은 구현과 리뷰 모두 가능하며, Opus도 설계뿐 아니라 장시간 구현을 담당할 수 있다.
+작업 유형별 1순위 요약이다. 승격 경로와 수치 근거는 [`SKILL.md`](SKILL.md) §4에 있다.
 
-Luna로 부족할 때 다음 단계는 작업 종류로 갈린다.
+| 작업 유형 | Codex (OpenAI) | Claude | 근거 강도 |
+| --- | --- | --- | --- |
+| 탐색·분류, 빌드·테스트 실행 | Luna `low` | Haiku `low` | 중간 |
+| 계획·남은 작업 정리 | Terra `medium` | Sonnet `medium` | 낮음 |
+| 일반 구현 | Terra `medium` | Haiku `medium` + 테스트 실행 | 중간 |
+| 어려운 코딩·디버깅 | Sol `medium` → `high` | Opus `high` | 중간~높음 |
+| 코드 리뷰 | Terra `medium` | Sonnet `medium` | 낮음 |
+| 화면 조작: 읽기 위주 | Terra `medium` | Haiku `medium` | 낮음 |
+| 화면 조작: 권한 경계 | Sol `medium` | Sonnet `high` | 낮음 |
+| 시각 판독 | Terra `medium` | Opus `high` (단순 판독은 Haiku `medium`) | 낮음 |
+| 보고서·글쓰기 | 초안 Sol `medium`, 최종본 Opus `high` | 초안 Sonnet `high`, 최종본 Opus `high` | 중간 |
+| 사실 민감한 요약·추출 | Terra `medium` + 원문 인용 | Haiku `medium` (주어진 문서) | 중간 |
+| 장시간 연구·여러 시스템 종합 | Astra `high` | Opus `high` | 중간 |
+| 하위 에이전트 | Luna `low` ~ Terra `low` | Haiku `low`~`medium` | 중간 |
 
-| 작업 종류 | Luna 다음 단계 |
-| --- | --- |
-| 코딩 (구현·버그 수정·리팩토링·원인 분석) | Sol 6.1 `medium` |
-| 화면·문서 (시각 판독·브라우저·양식·보고서 초안·반복 업무) | Terra 6.1 `medium` |
-| 해석·디자인·리뷰의 다른 관점 | Sonnet 5.5 |
-| 중요한 설계·지속적 판단, 여러 시스템 종합 | Opus 5.5 또는 Astra |
+근거 강도는 **높음** = 독립 측정 두 곳 이상이 같은 방향, **중간** = 독립 측정 하나 또는 독립 소표본 실험, **낮음** = 제조사 발표만 있거나 직접 측정이 없음이다. '낮음' 배치는 실제 과제 3~5건으로 채점해 확정한다.
+
+### 근거로 쓴 측정
+
+- [Artificial Analysis Intelligence Index v5.0](https://artificialanalysis.ai/ko/models): 모델 × effort별 점수, 작업당 비용, 시간
+- Terminal-Bench 4.0 ([Snorkel Harbor](https://snorkel.ai/leaderboard/terminal-bench/), [Artificial Analysis](https://artificialanalysis.ai/evaluations/terminalbench-4-0)), [DeepSWE](https://deepswe.datacurve.ai/): 코딩
+- [Agents' Last Exam](https://snorkel.ai/leaderboard/agents-last-exam/), [arena Text](https://arena.ai/leaderboard/text)·[Vision](https://arena.ai/leaderboard/vision), Artificial Analysis 환각률: 장시간 작업, 글쓰기, 시각, 사실성
+- 제조사 발표 수치는 따로 표시하고, 독립 측정과 다르면 독립 측정을 따른다. 화면 조작(OSWorld)은 아직 제조사 수치뿐이다.
 
 ## effort와 비용
 
-- Luna·Terra·Sol은 일반적으로 `medium`부터 시작한다. 단순 탐색·화면 조작은 `low`를 검토한다. Sol 6.1은 `none`을 지원하지 않는다.
-- 코딩에서 Terra가 부족하면 effort를 올리지 말고 Sol `medium`으로 바꾼다.
-- Sonnet 5.5는 일상 작업·하위 에이전트에서 `low`~`medium`, 어렵거나 긴 작업에서 `high`를 검토한다. Claude Code·앱 기본값은 `medium`, API 기본값은 `high`다. `high` 이상이 필요하면 Opus 5.5 `low`~`medium`과 비교한다.
-- Opus 5.5는 API 기본값인 `medium`부터 시작하고 필요에 따라 조정한다.
-- Astra는 이 스킬의 비용 우선 정책에 따라 `medium`부터 검토한다.
+- 시작점과 상한은 위 모델 표의 effort 열을 따른다. Sol 6.1과 Astra는 `none`을 지원하지 않는다.
+- Terra가 `high`로 부족하면 `xhigh`·`max`로 올리지 말고 Sol `medium`·`high`로 바꾼다.
+- Sonnet 5.5의 `high` 이상이 필요하면 Opus 5.5 `high`와 비교한다. Anthropic의 effort 곡선에서 Opus `high`(64.2%·$3.88)가 Sonnet `xhigh`(61.5%·$5.30)보다 점수는 높고 비용은 낮았다(제조사 발표).
+- Haiku 5.5는 `low`에서 긴 에이전트 프롬프트를 받으면 확인을 생략하고 일찍 멈출 수 있다. 수정·추출은 `medium`에 두고 테스트 실행을 지시한다. 프롬프트가 100K 토큰을 넘는 요청은 전체가 5배 요율이다.
 - 실제 실행 인터페이스에서 지원하는 effort만 사용한다. API의 지원 값과 앱·CLI 설정을 구분한다.
 - 단가뿐 아니라 사용 토큰, 재시도, 검증, 인계 비용까지 고려한다. 상세 가격 기준일과 공식 출처는 [`SKILL.md`](SKILL.md)를 참조한다.
 
@@ -293,12 +313,12 @@ Luna로 부족할 때 다음 단계는 작업 종류로 갈린다.
 5. 남은 작업을 구현하고 검증한다.
 6. 완료 사항, 미검증 항목, 차단 요인을 보고한다.
 
-일반 독립 검증은 별도 컨텍스트의 Luna를 우선한다. 전문성이 필요한 부분만 다른 모델에 맡긴다. 이미 승인·위임받은 범위는 반복 확인하지 않는다.
+독립 검증은 별도 컨텍스트에서 구현과 다른 모델로 한다. 테스트·빌드 확인 같은 기계적 검증은 Luna `low` 또는 Haiku `low`로 충분하고, 판단이 필요한 리뷰는 코드 리뷰 배치를 따른다. 이미 승인·위임받은 범위는 반복 확인하지 않는다.
 
 ## 수정과 기여
 
 - 규칙의 기준은 `SKILL.md`다. README는 요약과 사용법이므로 규칙을 바꾸면 두 파일을 함께 고친다.
-- 모델·가격·벤치마크 수치를 추가할 때는 `SKILL.md` 마지막 절에 출처와 확인일을 남긴다. 공식 출처가 아니면 보조 자료로 구분한다.
+- 모델·가격·벤치마크 수치를 추가할 때는 `SKILL.md` 마지막 절에 출처와 확인일을 남기고, 본문 수치에 `[독립]`·`[제조사]`·`[2차]`를 붙인다. Artificial Analysis 지수는 버전이 다른 점수끼리 비교하지 않는다.
 - 변경은 이슈나 PR로 제안한다. `main`에 반영되면 사용자는 [업데이트](#업데이트와-제거) 명령으로 받는다.
 - 배포할 변경은 `.claude-plugin/plugin.json`의 `version`(semver)을 올린 뒤 push한다. 버전을 그대로 두면 Claude Code 플러그인 사용자는 이전 사본을 계속 쓴다. 규칙 문구 수정은 patch, 배치 규칙 추가·변경은 minor, 호환되지 않는 구조 변경은 major를 올린다.
 - 매니페스트를 고친 뒤에는 저장소 루트에서 `claude plugin validate . --strict --profile directory`를 실행한다.
@@ -323,13 +343,13 @@ model-routing/
 ## 공식 문서
 
 <details>
-<summary>확인일: 2026-10-27. 기능·가격·설치 경로가 바뀌면 최신 공식 문서로 확인한다.</summary>
+<summary>확인일: 2026-10-28. 기능·가격·설치 경로가 바뀌면 최신 공식 문서로 확인한다.</summary>
 
 - [OpenAI 모델 가이드](https://developers.openai.com/api/docs/guides/latest-model)
 - [Luna 6](https://developers.openai.com/api/docs/models/gpt-6-luna) · [Terra 6.1](https://developers.openai.com/api/docs/models/gpt-6.1-terra) · [Sol 6.1](https://developers.openai.com/api/docs/models/gpt-6.1-sol) · [Astra](https://developers.openai.com/api/docs/models/gpt-6-astra)
-- [Sonnet 5.5](https://www.anthropic.com/claude-sonnet-5-5)
-- [Opus 5.5](https://platform.claude.com/docs/en/models/opus-5-5/overview)
-- [Claude effort](https://platform.claude.com/docs/en/build-with-claude/effort)
+- [Terra 6.1 시스템 카드 부록](https://deploymentsafety.openai.com/gpt-6-1-terra/addendum-to-gpt-6-astra-system-card-gpt-6.1-terra)
+- [Haiku 5.5](https://platform.claude.com/docs/en/models/haiku-5-5/whats-new-haiku-5-5) · [Sonnet 5.5](https://www.anthropic.com/claude-sonnet-5-5) · [Opus 5.5](https://platform.claude.com/docs/en/models/opus-5-5/overview)
+- [Claude effort](https://platform.claude.com/docs/en/build-with-claude/effort) · [Claude 가격](https://platform.claude.com/docs/en/about-claude/pricing)
 - [Claude Code 스킬 설치](https://code.claude.com/docs/en/skills)
 - [Claude Code 플러그인 설치·업데이트](https://code.claude.com/docs/en/plugins/install)
 - [Codex 스킬 설치](https://learn.chatgpt.com/docs/build-skills)
