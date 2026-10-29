@@ -16,7 +16,7 @@
 | 시각 판독: 스크린샷, 차트, 도면, 문서 이미지 | Terra / medium | Opus 5.5 / high. 단순 판독은 Haiku medium | 판독 오류가 남으면 Sol high (Codex) | [제조사] MMMU-Pro Terra 84.6~85.5%, Astra 86.7%. [독립] arena Vision Sol 1294 ≈ Opus 1293 > Sonnet 1265 > Luna 1240, Terra·Haiku 미등재 | 낮음 |
 | 보고서·글쓰기: 사람에게 나가는 문서 | 초안 Sol 6.1 / medium | 초안 Sonnet 5.5 / high | 최종본은 Opus high. 저가 초안은 Terra medium(제조사 근거만). Haiku·Luna는 쓰지 않는다 | [독립] arena Text Opus 1509, Sol 1480 ≈ Sonnet 1478 ≈ Astra 1476, Haiku 1425. GDPval-AA Opus 1846 | 중간 |
 | 사실 민감한 요약·추출 | Terra / medium, 원문 인용 강제 | Haiku 5.5 / medium, 주어진 문서에서 추출할 때만 | 오류 비용이 크면 Sol high. Luna는 쓰지 않는다 | [독립] AA-Omniscience 환각률 Terra 38%, Haiku 40%, Luna 77%. [제조사] 사실 오류 Terra medium 10.1%, max 4.3%, Sol max 4.4% | 중간 |
-| 장시간 연구·여러 시스템 종합 | Astra / high | Opus 5.5 / high | xhigh는 평가 후. 저가 1차 수집은 Terra medium(독립 미검증) | [독립] ALE v1.1 Opus·Astra 공동 1위 42.6%. AA v5.0 Opus high 57점·$6.05, Astra high 55점·$3.66 | 중간 |
+| 장시간 연구·여러 시스템 종합 | Astra / high | Opus 5.5 / high | xhigh는 평가 후. 저가 1차 수집은 Terra medium(독립 미검증) | [독립] ALE v1.1 Opus·Astra 공동 1위 42.6%. AA v5.0 Opus high 52점·$3.46, Astra high 55점·$3.24 | 중간 |
 | 하위 에이전트 | 검증 가능한 반환은 Luna low~Terra low | 검증 가능한 반환은 Haiku 5.5 / low~medium, 에이전트 정의에 `model: claude-haiku-5-5` | 판단이 들어가는 글, 보안 리뷰, 의존적 다중 파일 편집, 100k 토큰이 넘는 루프는 Terra medium (Codex) 또는 Sonnet medium (Claude) | [독립] 소표본 실험에서 에이전트 정의 18개 중 14개를 Haiku로 옮김. [제조사] Anthropic 모델 개요 | 중간 |
 
 Codex에서 일반 구현은 Terra medium에서 시작해 high까지 쓴다. 그 이상이 필요하면 effort를 올리지 말고 Sol medium으로 바꾼다.
