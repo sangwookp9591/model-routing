@@ -45,17 +45,19 @@
 | T1 코딩 | Terra / medium, high까지. 단일 파일 기계적 편집만 Luna medium | Haiku 5.5 / medium, 테스트·빌드 실행을 지시 | T2 코딩으로. Haiku가 두 번 실패하면 Sonnet medium | [독립] AA TB4 Haiku 33% 대 Luna 13~16.4%. AA v5.0 Terra medium 38점·$0.17 > Luna max 28점·$0.15. [2차] Terra TB4 55.6% | 중간 (Terra 코딩은 낮음) |
 | T1 판단 | Terra / medium | Sonnet 5.5 / medium | 중요한 변경은 Sol medium. 미묘한 리뷰·보안 리뷰에 Haiku를 쓰지 않는다 | [독립] AA v5.0 종합 지수만 있음. 소표본 실사용 보고에서 미묘한 리뷰·보안은 Sonnet으로 올림. 계획·리뷰 전용 측정 없음 | 낮음 |
 | T1 화면 | Terra / medium, 승인 설정 유지 | Haiku 5.5 / medium | 실패하면 T2 화면 | [제조사] OSWorld 2.1 Haiku 72.4%(strict 37.1%), Terra medium 66.7% | 낮음 |
-| T1 시각 | Terra / medium | 단순 판독은 Haiku 5.5 / medium, 정밀 판독은 Opus 5.5 / high | 판독 오류가 남으면 Sol high | [제조사] MMMU-Pro Terra 84.6~85.5%, Astra 86.7%. [독립] arena Vision Sol 1294 ≈ Opus 1293 > Sonnet 1265 > Luna 1240, Terra·Haiku 미등재 | 낮음 |
-| T1 사실 | Terra / medium, 원문 인용 강제 | Haiku 5.5 / medium, 주어진 문서에서 추출할 때만 | T2 사실은 Sol high (Claude 계열은 Sonnet high). Luna는 쓰지 않는다 | [독립] AA-Omniscience 환각률 Terra 38%, Haiku 40%, Luna 77%. [제조사] 사실 오류 Terra medium 10.1%, max 4.3%, Sol max 4.4% | 중간 |
-| T2 코딩 | Sol 6.1 / medium, 막히면 high | Opus 5.5 / high | T3로. Opus max는 쓰지 않는다. Sonnet은 xhigh가 상한이고 Opus high보다 점수가 낮고 비싸다 | [독립] Harbor TB4 Sol 58.2%·$0.6k, Astra 58.2%·$3.3k, Opus 64.8%·$4.7k. [제조사] Opus high 64.2%·$3.88 대 max 64.8%, Sonnet xhigh 61.5%·$5.30 | 중간~높음 |
-| T2 판단 | Sol 6.1 / high | Opus 5.5 / high | — | [독립] AA v5.0 Sol high 50점·$0.59, Opus high 52점·$3.46. 설계 판단 전용 측정 없음 | 낮음 |
-| T2 화면·권한 경계 | Sol 6.1 / medium. Terra 금지 | Sonnet 5.5 / high | Opus 5.5 | [제조사] OSWorld 2.1 Sonnet 83.9%(strict 48.8%), Sol max 78.0%, Terra 차단 우회 29.6%. [독립] arena Agent Opus 1위, Sonnet 2위(약한 근거) | 낮음 |
-| T2 글쓰기 (초안) | Sol 6.1 / medium | Sonnet 5.5 / high | 저가 초안은 Terra medium(제조사 근거만). Haiku·Luna는 쓰지 않는다 | [독립] arena Text Opus 1509, Sol 1480 ≈ Sonnet 1478 ≈ Astra 1476, Haiku 1425 | 중간 |
-| T3 글쓰기 (최종본) | Opus 5.5 / high (쓸 수 없으면 Sol high) | Opus 5.5 / high | — | [독립] arena Text Opus 1509, GDPval-AA Opus 1846 | 중간 |
-| T3 코딩 (저장소 단위) | Astra / xhigh | Opus 5.5 / high | xhigh는 평가 후 | [독립] DeepSWE Astra xhigh 74% | 중간 |
-| T3 연구 | Astra / high | Opus 5.5 / high | xhigh는 평가 후. 저가 1차 수집은 Terra medium(독립 미검증) | [독립] ALE v1.1 Opus·Astra 공동 1위 42.6%. AA v5.0 Opus high 52점·$3.46, Astra high 55점·$3.24 | 중간 |
+| T1 시각 | Terra / medium | 단순 판독은 Haiku 5.5 / medium, 정밀 판독은 Opus 5.5 / high | 판독 오류가 남으면 Sol high | [제조사] MMMU-Pro Terra 84.6~85.5%, GPT-6 Astra 86.7%. [독립] arena Vision Opus 1295 ≈ Sol 6.1 1293 > Sonnet 1263. Sol 6.2·Astra 6.2·Terra·Haiku 미등재 | 낮음 |
+| T1 사실 | Terra / medium, 원문 인용 강제 | Haiku 5.5 / medium, 주어진 문서에서 추출할 때만 | T2 사실은 Sol high (Claude 계열은 Sonnet high). Luna는 쓰지 않는다 | [독립] AA-Omniscience 환각률 Terra 38%, Haiku 40%, Luna 77%. [제조사] 사실 오류 Terra medium 10.1%, max 4.3%, Sol 6.1 max 4.4%. Sol 6.2의 수치는 없음 | 중간 |
+| T2 코딩 | Sol 6.2 / medium, 막히면 high | Opus 5.5 / high | T3로. Sol high로 부족하면 Astra 6.2 medium과 비교. Opus max는 쓰지 않는다. Sonnet은 xhigh가 상한이고 Opus high보다 점수가 낮고 비싸다 | [독립] Vals TB4 Sol 6.2 60.6%·$1.13, Astra 6.2 63.1%·$4.69, Opus 65.2%·$12.04. AA 지수 Sol 6.2 medium 53점, high 55점. Harbor에는 6.2 미등재(Sol 6.1 60.9%·$0.6k, Opus 65.8%·$4.7k). [2차] AA 코딩 에이전트 지수는 Sol 6.1보다 3점 낮음. [제조사] Opus high 64.2%·$3.88 대 max 64.8%, Sonnet xhigh 61.5%·$5.30 | 중간~높음 (Sol 6.2는 중간) |
+| T2 판단 | Sol 6.2 / high | Opus 5.5 / high | — | [독립] AA 지수 Sol 6.2 high 55점(작업당 비용 미공개, max $1.01), Opus high 52점·$3.46. 설계 판단 전용 측정 없음 | 낮음 |
+| T2 화면·권한 경계 | Sol 6.2 / medium. Terra 금지 | Sonnet 5.5 / high | Opus 5.5 | [제조사] OSWorld 2.1 Sonnet 83.9%(strict 48.8%), Sol 6.1 max 78.0%(Sol 6.2 수치 없음), Terra 차단 우회 29.6%. 에이전트 메시지에 따른 무단 행동 80회 중 Sol 6.2 0회, Terra 11회. [독립] arena Agent Opus 1위, Sonnet 2위(약한 근거) | 낮음 |
+| T2 글쓰기 (초안) | Sol 6.2 / medium | Sonnet 5.5 / high | 저가 초안은 Terra medium(제조사 근거만). Haiku·Luna는 쓰지 않는다 | [독립] arena Text Opus 1507, Sol 6.1 1481 ≈ GPT-6 Astra 1474 ≈ Sonnet 1473, Haiku 1425. Sol 6.2 미등재 | 중간 (Sol 6.2는 낮음) |
+| T3 글쓰기 (최종본) | Opus 5.5 / high (쓸 수 없으면 Sol 6.2 high) | Opus 5.5 / high | — | [독립] arena Text Opus 1507, GDPval-AA Opus 1846 | 중간 |
+| T3 코딩 (저장소 단위) | Astra 6.2 / xhigh | Opus 5.5 / high | Opus xhigh는 평가 후. Astra max는 쓰지 않는다 | [독립] Vals TB4 Astra 6.2 63.1%·$4.69 (GPT-6 Astra 59.6%·$9.58, Opus 65.2%·$12.04). AA TB4 Astra 6.2 max 64.1%. AA 지수 Astra 6.2 xhigh 62점 = max 62점. DeepSWE는 GPT-6 Astra xhigh 74%만 있음 | 중간 |
+| T3 연구 | Astra 6.2 / high | Opus 5.5 / high | xhigh는 평가 후. 저가 1차 수집은 Terra medium(독립 미검증) | [독립] ALE v1.1 Opus 43.4%, GPT-6 Astra 42.6%(Astra 6.2 미등재). AA 지수 Opus high 52점·$3.46, Astra 6.2 high 60점(작업당 비용 미공개, max $4.00) | 중간 |
 
-- OpenAI 계열 T1 코딩은 Terra medium에서 시작해 high까지 쓴다. 그 이상이 필요하면 effort를 올리지 말고 Sol medium으로 바꾼다.
+- OpenAI 계열 T1 코딩은 Terra medium에서 시작해 high까지 쓴다. 그 이상이 필요하면 effort를 올리지 말고 Sol 6.2 medium으로 바꾼다.
+- Terra를 배치할 수 없는 환경(승인 불가, SKILL.md §2-7)의 T1은 기계적 편집이면 Luna medium, 그 밖에는 Sol 6.2 / low로 대신한다. AA 지수에서 Sol 6.2 low는 41점·작업당 1.4분으로 Terra medium(38점·2.9분)과 Terra high(42점) 사이다 [독립]. 작업당 비용은 공개되지 않았고 토큰 단가는 Terra의 2배다. 근거 강도는 낮음이다.
+- Sol 6.2·Astra 6.2를 쓸 수 없는 하네스에서는 Sol·Astra 자리에 Sol 6.1·GPT-6 Astra를 같은 effort로 쓴다. 근거 수치는 `references/models.md`의 이전 세대 행을 본다.
 - Claude 계열 하위 에이전트에 Haiku를 쓰려면 에이전트 정의에 `model: claude-haiku-5-5`를 적는다.
 
 ## 오픈 모델 대안
@@ -66,8 +68,8 @@
 | --- | --- | --- | --- | --- |
 | T1 코딩 | GLM-5.3-Flash | Haiku·Terra를 쓸 수 없거나 그쪽 예산이 부족할 때 | [독립] Terminal-Bench 4.0 Snorkel 35.8%, Vals.ai 37.4%·$1.22 (Haiku 5.5 36.4%·$3.12). DeepSWE 63%·$0.24 | 중간 |
 | T1 코딩 (프런트엔드 초안) | DeepSeek V4.1 Flash 1017 | 저가 초안. 미국·유럽 호스팅 제공사 우선 | [독립] arena WebDev 1665 ≈ Terra max 1673. 에이전트 코딩 독립 측정 없음 | 낮음 |
-| T1 시각 (정밀 판독) | Qwen3.8 Max | 다른 계열의 정밀 판독을 쓸 수 없을 때. 작업당 비용이 높다 | [독립] arena Vision 1300(2위) > Sol 1294 ≈ Opus 1293 | 중간 |
-| T2 코딩 (긴 터미널 작업) | Kimi K3.1 Pro / max | Opus를 쓸 수 없거나 Claude 계열 예산이 부족할 때. Sol을 쓸 수 있으면 Sol이 더 싸다 | [독립] Terminal-Bench 4.0 Vals.ai 63.6%·$4.57, Artificial Analysis 67.2% (Opus 5.5 65.2%·$13.20, Sol 6.1 55.1%·$1.72) | 중간~높음 |
+| T1 시각 (정밀 판독) | Qwen3.8 Max | 다른 계열의 정밀 판독을 쓸 수 없을 때. 작업당 비용이 높다 | [독립] arena Vision 1300(2위) > Sol 6.1 1294 ≈ Opus 1293 (2026-10-29 값) | 중간 |
+| T2 코딩 (긴 터미널 작업) | Kimi K3.1 Pro / max | Opus를 쓸 수 없거나 Claude 계열 예산이 부족할 때. Sol 6.2를 쓸 수 있으면 Sol이 더 싸고, Astra 6.2는 점수와 비용이 비슷하다 | [독립] Terminal-Bench 4.0 Vals.ai 63.6%·$4.57, Artificial Analysis 67.2% (Opus 5.5 65.2%·$12.04, Astra 6.2 63.1%·$4.69, Sol 6.2 60.6%·$1.13) | 중간~높음 |
 
 - T0는 오픈 모델을 쓰지 않는다. Luna low·Haiku low가 더 싸다.
 - 보안 리뷰·보안 작업에는 오픈 모델을 배치하지 않는다.
@@ -82,7 +84,7 @@
 | --- | --- | --- | --- | --- |
 | 1. 로그·스택 수집과 분류 | 원본 로그로 다시 확인 | T0 기계 | Luna / low | Haiku 5.5 / low |
 | 2. 오류 화면 스크린샷 판독 | 원인 분석 단계에서 화면과 대조 | T1 시각 | Terra / medium | Haiku 5.5 / medium, 어긋나면 Opus high |
-| 3. 원인 분석·가설 검증 | 확인 없이 다음 단계의 판단 근거가 됨 | T2 코딩 | Sol 6.1 / medium | Opus 5.5 / high |
+| 3. 원인 분석·가설 검증 | 확인 없이 다음 단계의 판단 근거가 됨 | T2 코딩 | Sol 6.2 / medium | Opus 5.5 / high |
 | 4. 수정·회귀 테스트 작성 | 테스트·빌드 | 범위가 좁으면 T1 코딩, 다중 파일이면 T2 코딩 | Terra medium 또는 Sol medium | Haiku medium 또는 Opus high |
 | 5. 독립 리뷰 | 별도 컨텍스트에 요구사항·diff·테스트 로그 제공 | T1 판단 | Terra / medium | Sonnet 5.5 / medium |
 | 6. 결과 보고 | 사람에게 바로 나감 | 3단계 모델이 이어서 작성 | — | — |
@@ -95,11 +97,11 @@
 | --- | --- | --- | --- | --- |
 | 1. 입력 데이터 정리·검증 | 스크립트 검사 | T0 기계 | Luna / low | Haiku 5.5 / low |
 | 2. 화면 구조 파악·필드 매핑 | 1건 시험 등록으로 확인 | T1 화면 | Terra / medium, 승인 설정 유지 | Haiku 5.5 / medium |
-| 3. 등록 제출 반복 | 건별 승인 또는 시험 계정 | T2 화면·권한 경계 | Sol 6.1 / medium | Sonnet 5.5 / high |
+| 3. 등록 제출 반복 | 건별 승인 또는 시험 계정 | T2 화면·권한 경계 | Sol 6.2 / medium | Sonnet 5.5 / high |
 | 4. 결과 대조 | 스크립트로 목록 비교 | T0 기계 | Luna / low | Haiku 5.5 / low |
 
 ## 근거가 낮은 배치의 확정과 재검토
 
 - 근거 강도가 '낮음'인 배치는 실제 과제 3~5건을 1순위 모델과 승격 열 모델로 각각 실행해 같은 기준(테스트 통과, 판독 정답, 사람 채점)으로 채점한다. 작업당 비용과 시간도 기록한다.
 - 1순위 모델의 품질이 승격 모델과 같으면 1순위를 확정하고, 낮으면 승격 모델을 그 작업의 기본값으로 바꾼다. 결과는 배치 공유(SKILL.md §8)에 함께 적는다.
-- 다음 경우에 이 표를 다시 검토한다. Terra·Haiku가 Harbor Terminal-Bench, Agents' Last Exam, arena Text·Vision 같은 독립 리더보드에 등재될 때, 대상 모델의 새 버전이 나올 때, Artificial Analysis 지수 버전이 바뀔 때. 지수 버전이 다른 점수끼리는 비교하지 않는다.
+- 다음 경우에 이 표를 다시 검토한다. Sol 6.2·Astra 6.2가 Harbor Terminal-Bench, DeepSWE, Agents' Last Exam, arena에 등재되거나 Artificial Analysis가 effort별 작업당 비용을 공개할 때, Terra·Haiku가 Harbor Terminal-Bench, Agents' Last Exam, arena Text·Vision 같은 독립 리더보드에 등재될 때, 대상 모델의 새 버전이 나올 때, Artificial Analysis 지수 버전이 바뀔 때. 지수 버전이 다른 점수끼리는 비교하지 않는다.

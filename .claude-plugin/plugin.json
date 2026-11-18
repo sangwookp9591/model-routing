@@ -1,7 +1,7 @@
 {
   "name": "model-routing",
-  "version": "2.0.0",
-  "description": "Model-routing rules for coding agents. Splits work into steps and gives each step a model and effort (GPT-6 Luna, Terra 6.1, Sol 6.1, Astra, Claude Haiku 5.5, Sonnet 5.5, Opus 5.5) based on whether its output can be checked, with evidence from independent benchmarks. Excludes Fable and Gemini.",
+  "version": "2.1.0",
+  "description": "Model-routing rules for coding agents. Splits work into steps and gives each step a model and effort (GPT-6 Luna, Terra 6.1, Sol 6.2, Astra 6.2, Claude Haiku 5.5, Sonnet 5.5, Opus 5.5) based on whether its output can be checked, with evidence from independent benchmarks. Excludes Fable and Gemini.",
   "author": {
     "name": "sangwookp9591"
   },

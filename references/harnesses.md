@@ -1,6 +1,6 @@
 # 하네스 감지와 하네스별 배치 방법
 
-2026-10-29 기준. 출처 표시: [문서]는 공식 문서, [관찰]은 실제 실행에서 확인한 값, [3자]는 다른 감지 라이브러리가 쓰는 신호다. 하네스 버전이 바뀌면 신호도 바뀔 수 있다.
+2026-10-29 기준(Sol 6.2·Astra 6.2 지원 여부는 2026-11-18 확인). 출처 표시: [문서]는 공식 문서, [관찰]은 실제 실행에서 확인한 값, [3자]는 다른 감지 라이브러리가 쓰는 신호다. 하네스 버전이 바뀌면 신호도 바뀔 수 있다.
 
 ## 1. 감지 순서
 
@@ -54,15 +54,15 @@
 | 하네스 | 쓸 수 있는 배치 대상 모델 | 단계별 배치 수준 | 사용량 확인 |
 | --- | --- | --- | --- |
 | Claude Code | Claude 계열 | 모델·effort: 에이전트 정의의 `model:`, `Agent` 호출의 `model`·`effort` | `/usage`, 상태 표시줄 |
-| Codex CLI | OpenAI 계열 (`model_providers`로 다른 공급자 추가 가능) | 모델·effort: 에이전트 TOML의 `model`, `model_reasoning_effort` | `/status` |
-| OpenCode | 공급자 설정에 따라 OpenAI·Claude·오픈 모델 | 모델·effort: 에이전트의 `model`(`provider/model`), `reasoningEffort` | 확인 못 함 |
+| Codex CLI | OpenAI 계열. Sol 6.2·Astra 6.2 포함(CLI 0.170.0에서 확인 [관찰]). `model_providers`로 다른 공급자 추가 가능 | 모델·effort: 에이전트 TOML의 `model`, `model_reasoning_effort` | `/status` |
+| OpenCode | 공급자 설정에 따라 OpenAI·Claude·오픈 모델. Zen에 Sol 6.2·Astra 6.2가 있다 | 모델·effort: 에이전트의 `model`(`provider/model`), `reasoningEffort` | 확인 못 함 |
 | Kilo Code | 게이트웨이·BYOK로 여러 계열 | 모델·effort: `model`, 공급자 옵션 `reasoningEffort` | `kilo stats` (비용 통계) |
 | Cursor | Claude 계열, Kimi·GLM·DeepSeek. GPT는 5.6 세대만 확인 | 모델·effort: `model: <id>[effort=high]` | 에디터 설정 화면 |
-| Factory Droid | 확인 못 함 (BYOK는 `custom:`) | 모델·effort: `model`, `reasoningEffort` | 확인 못 함 |
-| GitHub Copilot | OpenAI 계열(GPT-6·6.1)과 Claude 계열 모두, Kimi K3 | 모델만: 에이전트 프로필 `model`. effort는 세션 전역 `effortLevel` | `/usage`, 푸터 |
-| Devin Desktop·Devin CLI | Astra, Sol 6.1, 오픈 모델. Claude 5.5는 확인 못 함 | 모델만: 프로필 `model` | 사용량 미터 화면 |
+| Factory Droid | OpenAI 계열(Sol 6.2·Astra 6.2, Sol 6.1, Terra 6.1, Luna 포함). Claude 계열은 확인 못 함 (BYOK는 `custom:`) | 모델·effort: `model`, `reasoningEffort` | `/limits` |
+| GitHub Copilot | OpenAI 계열(GPT-6·6.1·6.2, Sol 6.2·Astra 6.2 포함)과 Claude 계열 모두, Kimi K3 | 모델만: 에이전트 프로필 `model`. effort는 세션 전역 `effortLevel` | `/usage`, 푸터 |
+| Devin Desktop·Devin CLI | GPT-6 Astra, Sol 6.1, 오픈 모델. Sol 6.2·Astra 6.2와 Claude 5.5는 확인 못 함 | 모델만: 프로필 `model` | 사용량 미터 화면 |
 | Antigravity | Sonnet 5.5·Opus 5.5 (유료 Pro 이상). 4.6과 GPT-OSS-120b는 2026-11-02 제거 예정 | 지정 불가: 하위 에이전트 `model`은 `inherit`·`flash`·`pro`뿐 | 설정 화면 |
-| Amp | Astra, Sol 6.1 (모드별), 외부 에이전트로 Claude Code | 지정 불가: 하위 에이전트는 스레드 모델 상속 | `amp usage` |
+| Amp | GPT-6 Astra, Sol 6.1 (모드별). Sol 6.2·Astra 6.2는 모델 목록에 없음. 외부 에이전트로 Claude Code | 지정 불가: 하위 에이전트는 스레드 모델 상속 | `amp usage` |
 | Cline | 공급자 설정에 따라 OpenAI·Claude·DeepSeek·Qwen·GLM | 지정 불가: 하위 에이전트 모델 키 없음 | 확인 못 함 |
 | Aider | litellm 공급자 | 하위 에이전트 없음: 메인·`--editor-model`·`--weak-model` 세 자리 | 확인 못 함 |
 | Gemini CLI | 없음 (Gemini 전용) | — | — |
@@ -74,6 +74,7 @@
 - **지정 불가:** 세션 모델 하나로 진행한다. 단계별 배치표는 제안으로 공유하고, 등급이 크게 다른 단계(T0와 T2 이상)가 섞이면 세션 모델 전환을 제안한다. Amp는 모드(`low`·`medium`·`high`) 전환으로 근사한다.
 - **하위 에이전트 없음(Aider):** `--weak-model`에 T0, `--editor-model`에 T1, 메인(architect) 모델에 T2를 둔다.
 - **배치 대상 모델 없음:** Gemini CLI, 그리고 2026-11-02 이후 Free·Plus 플랜의 Antigravity가 해당한다. 배치 대상 모델이 없다고 알리고 배치표는 제안으로만 공유한다. 실제 실행 모델과 구분하고, 다른 모델로 자동 대체하지 않는다.
+- **Sol 6.2·Astra 6.2가 없는 하네스**(Amp, 확인 못 한 Devin·Cursor 등): 배치표의 Sol·Astra 자리에 Sol 6.1·GPT-6 Astra를 쓰고 배치 공유에 세대를 적는다. 목록에 6.2가 생겼는지 세션마다 확인한다.
 - Cursor는 지정한 모델을 쓸 수 없으면 호환 모델로 조용히 바꾼다 [문서]. 하위 에이전트에게 실제 사용한 모델을 결과에 적게 한다.
 - Claude Code의 `haiku` 별칭은 Bedrock·Google Cloud·Foundry에서 Haiku 4.5를 가리킨다. `claude-haiku-5-5`로 고정한다.
 
@@ -94,7 +95,7 @@ GPT-6.1 Terra를 쓸 수 있는 하네스는 Codex, OpenCode, GitHub Copilot이�
 ## 7. 현재 모델·effort 확인
 
 - Claude Code: 시스템 프롬프트의 모델 문구, 셸 `CLAUDE_EFFORT` [관찰].
-- Codex: `~/.codex/config.toml`의 `model`·`model_reasoning_effort` (세션 중 `/model` 전환은 반영되지 않을 수 있음).
+- Codex: `~/.codex/config.toml`의 `model`·`model_reasoning_effort` (세션 중 `/model` 전환은 반영되지 않을 수 있음). Sol 6.2·Astra 6.2는 effort를 지정하지 않으면 low로 실행된다 [관찰]. 쓸 수 있는 모델 ID는 `~/.codex/models_cache.json`의 `slug`로 확인한다.
 - OpenCode·Kilo: `opencode.json`·`kilo.jsonc`의 `model`.
 - Copilot: `COPILOT_MODEL`, `~/.copilot/settings.json`의 `model`·`effortLevel`. 커스텀 에이전트의 `model`이 우선한다.
 - 그 밖에는 사용자에게 묻거나 "미상"으로 둔다. 모델의 자기 보고만으로 단정하지 않는다.

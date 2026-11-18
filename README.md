@@ -41,7 +41,7 @@ Codex CLI · ChatGPT Plus · 예산 보통 (5시간 64%, /status) · 승인 가�
 | ---------------------- | ------------------- | ---------------------------------------- | ------------------ |
 | 호출부 탐색·의존성 정리 | Luna 6 / low        | T0 기계 (중간)                           | 호출부 목록        |
 | DTO·Mapper 분리        | Terra 6.1 / low     | T1 코딩, 예산 보통이라 medium → low (중간) | 타입 검사·단위 테스트 |
-| 재시도·멱등성 재설계    | Sol 6.1 / medium    | T2 코딩, 예산 보통에서도 유지 (중간~높음) | 동시성 테스트      |
+| 재시도·멱등성 재설계    | Sol 6.2 / medium    | T2 코딩, 예산 보통에서도 유지 (중간~높음) | 동시성 테스트      |
 | 독립 리뷰              | Terra 6.1 / low     | T1 판단, 별도 컨텍스트 (낮음)            | 지적 사항 처리     |
 ```
 
@@ -63,8 +63,8 @@ Codex CLI · ChatGPT Plus · 예산 보통 (5시간 64%, /status) · 승인 가�
 
 ### 왜 필요한가
 
-- **한도는 모델마다 다르게 줄어든다.** Codex(ChatGPT Plus)에서 5시간 동안 보낼 수 있는 메시지는 Luna 350~3,000건, Terra 35~285건, Sol 15~160건, Astra 5~45건이다. 크레딧 단가로는 Astra가 Terra의 10배다 [공식].
-- **effort를 올리는 것이 손해일 때가 많다.** Artificial Analysis Intelligence Index v5.0에서 Luna `max`(28점·작업당 $0.15)는 Terra `low`(29점·$0.07)보다 낮았다. Terra `max`(51점·$0.96·150초)는 Sol `high`(50점·$0.59·38초)와 점수가 비슷한데 비용은 약 1.6배, 시간은 약 4배였다 [독립].
+- **한도는 모델마다 다르게 줄어든다.** Codex(ChatGPT Plus)에서 5시간 동안 보낼 수 있는 메시지는 Luna 350~3,000건, Terra 35~285건, Sol 6.2 17~180건, Astra 6.2 6~50건이다. 크레딧 단가로는 Astra 6.2가 Terra의 8배다 [공식].
+- **effort를 올리는 것이 손해일 때가 많다.** Artificial Analysis Intelligence Index에서 Luna `max`(28점·작업당 $0.15)는 Terra `low`(29점·$0.07)보다 낮았다. Terra `max`(51점·$0.96)는 Sol 6.2 `max`(57점·$1.01)와 비용이 거의 같은데 6점 낮았고, Sol 6.2 `max`(57점·8.0분)는 Astra 6.2 `medium`(57점·4.2분)과 점수가 같은데 시간이 약 2배였다 [독립].
 - **하네스마다 할 수 있는 일이 다르다.** Claude Code·Codex는 단계마다 모델과 effort를 따로 줄 수 있다. Copilot은 모델만, Amp·Antigravity·Cline은 하위 에이전트 모델을 따로 정할 수 없다. 같은 배치표라도 적용 방식이 달라야 한다.
 
 ## 동작 방식
@@ -160,7 +160,7 @@ flowchart TD
 품질이 모자라면 effort를 끝까지 올리지 않고 **다음 모델의 중간 effort**로 넘긴다. 어려운 부분만 넘기고, 해결 방향이 정해지면 후속 작업은 1순위 모델로 돌아온다.
 
 ```text
-Luna low ──▶ Terra low ──▶ Terra medium ─(high까지)─▶ Sol medium ──▶ Sol high ──▶ Astra xhigh (저장소 단위)
+Luna low ──▶ Terra low ──▶ Terra medium ─(high까지)─▶ Sol medium ──▶ Sol high ──▶ Astra medium (저장소 단위는 Astra xhigh)
 Haiku low ──▶ Haiku medium ─(2회 실패)─▶ Sonnet medium ──▶ Sonnet high ──▶ Opus high
 ```
 
@@ -177,14 +177,16 @@ Haiku low ──▶ Haiku medium ─(2회 실패)─▶ Sonnet medium ──▶ 
 | OpenCode | `opencode` | 공급자 설정에 따라 OpenAI·Claude·오픈 모델 | 🟢 모델·effort | 콘솔 (Go) |
 | Kilo Code | `kilo` | 게이트웨이·BYOK로 여러 계열 | 🟢 모델·effort | `kilo stats` |
 | Cursor | `cursor` | Claude 계열, Kimi·GLM·DeepSeek (GPT는 5.6 세대만 확인) | 🟢 모델·effort | 에디터 설정 |
-| Factory Droid | `droid` | 확인 못 함 (BYOK) | 🟢 모델·effort | `/limits` |
+| Factory Droid | `droid` | OpenAI 계열 (Sol 6.2·Astra 6.2 포함), BYOK | 🟢 모델·effort | `/limits` |
 | GitHub Copilot | `github-copilot` | OpenAI·Claude 계열, Kimi K3 | 🟡 모델만 | `/usage`, 푸터 |
-| Devin Desktop·CLI (구 Windsurf) | `windsurf`, `devin` | Astra, Sol 6.1, 오픈 모델 | 🟡 모델만 | 사용량 미터 |
+| Devin Desktop·CLI (구 Windsurf) | `windsurf`, `devin` | GPT-6 Astra, Sol 6.1, 오픈 모델 (6.2는 확인 못 함) | 🟡 모델만 | 사용량 미터 |
 | Antigravity | `antigravity` | Sonnet·Opus 5.5 (유료 Pro 이상) | 🟠 지정 불가 | 설정 화면 |
-| Amp | `amp` | Astra, Sol 6.1 | 🟠 지정 불가 (모드 전환으로 근사) | `amp usage` |
+| Amp | `amp` | GPT-6 Astra, Sol 6.1 (6.2는 목록에 없음) | 🟠 지정 불가 (모드 전환으로 근사) | `amp usage` |
 | Cline | `cline` | 공급자 설정에 따라 OpenAI·Claude·DeepSeek·Qwen·GLM | 🟠 지정 불가 | — |
 | Aider | — | litellm 공급자 | ⚪ 세 자리(메인·editor·weak) | — |
 | Gemini CLI | `gemini-cli` | 없음 (Gemini 전용) | ⚪ 제안만 | — |
+
+Sol 6.2·Astra 6.2는 2026-11-18 기준 Codex, GitHub Copilot, OpenCode Zen, Factory에서 확인했다. 없는 하네스에서는 같은 자리에 이전 세대(Sol 6.1, GPT-6 Astra)를 쓴다.
 
 🟢 단계마다 하위 에이전트를 띄워 모델·effort를 지정한다. 🟡 모델은 단계마다, effort는 세션 설정 하나로 맞춘다. 🟠 세션 모델 하나로 진행하고 배치표는 제안으로 공유한다. 등급 차이가 크면 세션 모델 전환을 제안한다. ⚪ 배치 대상 모델이 없거나 하위 에이전트가 없다. 다른 모델로 몰래 대체하지 않는다.
 
@@ -208,8 +210,8 @@ Haiku low ──▶ Haiku medium ─(2회 실패)─▶ Sonnet medium ──▶ 
 | --- | --- | --- | --- |
 | T1 코딩 | GLM-5.3-Flash | Terminal-Bench 4.0 Vals.ai 37.4%·$1.22 (Haiku 5.5 36.4%·$3.12), DeepSWE 63%·$0.24 | 중간 |
 | T1 프런트엔드 초안 | DeepSeek V4.1 Flash 1017 | arena WebDev 1665 ≈ Terra max 1673 | 낮음 |
-| T1 정밀 시각 판독 | Qwen3.8 Max | arena Vision 1300 > Sol 1294 ≈ Opus 1293 | 중간 |
-| T2 긴 터미널 작업 | Kimi K3.1 Pro `max` | Terminal-Bench 4.0 Vals.ai 63.6%·$4.57 (Opus 5.5 65.2%·$13.20) | 중간~높음 |
+| T1 정밀 시각 판독 | Qwen3.8 Max | arena Vision 1300 > Sol 6.1 1294 ≈ Opus 1293 | 중간 |
+| T2 긴 터미널 작업 | Kimi K3.1 Pro `max` | Terminal-Bench 4.0 Vals.ai 63.6%·$4.57 (Opus 5.5 65.2%·$12.04, Astra 6.2 63.1%·$4.69) | 중간~높음 |
 
 - T0와 보안 작업에는 오픈 모델을 쓰지 않는다.
 - 회사 코드나 민감한 데이터는 사용자 확인 없이 중국 회사의 공식 API로 보내지 않는다.
@@ -345,7 +347,7 @@ ln -s ~/skills/model-routing ~/.agents/skills/model-routing   # Codex, Cursor, C
 Terra medium으로 이 race condition을 두 번 고쳤는데 테스트가 계속 간헐적으로 실패해. 다음에 어떻게 배치할지 판단해줘.
 ```
 
-바로 올리지 않고 재현 조건·누락된 증거·환경 문제부터 확인한다. 동시성 문제는 T2 코딩이므로 Terra의 effort를 올리지 않고 어려운 부분만 Sol 6.1 `medium`(Claude Code면 Opus 5.5 `high`)에 넘긴 뒤, 후속 작업은 1순위 모델로 돌려보낸다.
+바로 올리지 않고 재현 조건·누락된 증거·환경 문제부터 확인한다. 동시성 문제는 T2 코딩이므로 Terra의 effort를 올리지 않고 어려운 부분만 Sol 6.2 `medium`(Claude Code면 Opus 5.5 `high`)에 넘긴 뒤, 후속 작업은 1순위 모델로 돌려보낸다.
 
 ### 예시 4. 화면·문서 작업
 
@@ -382,7 +384,7 @@ QA 스크린샷 40장에서 오류 화면을 분류하고 주간 보고서 초�
 
 | 출처 | 쓰는 곳 |
 | --- | --- |
-| [Artificial Analysis Intelligence Index v5.0](https://artificialanalysis.ai/ko/models) | 모델 × effort별 점수, 작업당 비용, 응답 시간 |
+| [Artificial Analysis Intelligence Index v5.0·v5.0.1](https://artificialanalysis.ai/ko/models) | 모델 × effort별 점수, 작업당 비용, 작업당 시간 |
 | Terminal-Bench 4.0 ([Snorkel Harbor](https://snorkel.ai/leaderboard/terminal-bench/), [Artificial Analysis](https://artificialanalysis.ai/evaluations/terminalbench-4-0), Vals.ai), [DeepSWE](https://deepswe.datacurve.ai/) | 코딩 |
 | [Agents' Last Exam](https://snorkel.ai/leaderboard/agents-last-exam/) | 장시간 작업 |
 | [arena Text](https://arena.ai/leaderboard/text) · [Vision](https://arena.ai/leaderboard/vision) · WebDev | 글쓰기, 시각, 프런트엔드 |
@@ -392,19 +394,21 @@ QA 스크린샷 40장에서 오류 화면을 분류하고 주간 보고서 초�
 근거 강도는 **높음** = 독립 측정 두 곳 이상이 같은 방향, **중간** = 독립 측정 하나 또는 독립 소표본 실험, **낮음** = 제조사 발표만 있거나 직접 측정이 없음이다. 화면 조작(OSWorld)은 아직 제조사 수치뿐이다. 수치 전체는 [`references/models.md`](references/models.md), 출처와 확인일은 [`references/sources.md`](references/sources.md)에 있다.
 
 <details>
-<summary><b>Artificial Analysis v5.0 · 모델 × effort별 점수와 작업당 비용</b> (2026-10-29 조회)</summary>
+<summary><b>Artificial Analysis · 모델 × effort별 점수와 작업당 비용</b> (v5.0 2026-10-29 조회, Sol 6.2·Astra 6.2는 v5.0.1 2026-11-18 조회)</summary>
 
-각 칸은 점수 · 작업당 비용이다.
+각 칸은 점수 · 작업당 비용이다. Sol 6.2·Astra 6.2의 작업당 비용은 max만 공개돼 있다.
 
 | 모델 | low | medium | high | xhigh | max |
 | --- | --- | --- | --- | --- | --- |
 | Luna 6 | 10 · $0.01 | 18 · $0.04 | 21 · $0.07 | 23 · $0.10 | 28 · $0.15 |
 | Terra 6.1 | 29 · $0.07 | 38 · $0.17 | 42 · $0.26 | 45 · $0.40 | 51 · $0.96 |
-| Sol 6.1 | 35 · $0.16 | 46 · $0.36 | 50 · $0.59 | 52 · $0.76 | 55 · $1.27 |
-| Astra | 43 · $1.42 | 51 · $2.73 | 55 · $3.24 | 55 · $3.66 | 57 · $6.24 |
+| Sol 6.2 | 41 · — | 53 · — | 55 · — | 56 · — | 57 · $1.01 |
+| Astra 6.2 | 46 · — | 57 · — | 60 · — | 62 · — | 62 · $4.00 |
+| Sol 6.1 (이전 세대) | 35 · $0.16 | 46 · $0.36 | 50 · $0.59 | 52 · $0.76 | 55 · $1.27 |
+| GPT-6 Astra (이전 세대) | 43 · $1.42 | 52 · $2.73 | 55 · $3.24 | 55 · $3.66 | 57 · $6.24 |
 | Haiku 5.5 | 19 · $0.04 | 25 · $0.09 | 30 · $0.16 | 34 · $0.25 | 36 · $0.41 |
 | Sonnet 5.5 | 25 · $0.51 | 30 · $0.78 | 41 · $1.64 | 50 · $4.09 | 54 · $10.02 |
-| Opus 5.5 | 35 · $0.98 | 48 · $2.45 | 52 · $3.46 | 57 · $6.05 | 58 · $10.04 |
+| Opus 5.5 | 35 · $0.98 | 48 · $2.45 | 52 · $3.46 | 57 · $6.05 | 59 · $10.04 |
 
 이 지수는 에이전트형 코딩과 사람 선호를 반영하지 못한다. 그 영역에서는 Claude 모델의 위치가 올라간다(Terminal-Bench, arena).
 

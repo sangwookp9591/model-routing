@@ -1,6 +1,6 @@
 ---
 name: model-routing
-description: 사용자의 구독·크레딧·남은 사용량 안에서 작업 단계마다 모델과 effort를 배치하는 규칙. 하네스(Claude Code, Codex, OpenCode, Copilot, Cursor 등)와 과금 방식을 확인하고, 결과를 검증할 수 있는 단계는 싼 모델에, 어려운 단계만 상위 모델에 근거와 함께 배치한다. 대상 모델은 Luna 6, Terra 6.1, Sol 6.1, Astra, Haiku 5.5, Sonnet 5.5, Opus 5.5이고, 근거가 있는 자리에 한해 Kimi·GLM·DeepSeek·Qwen 오픈 모델도 쓴다. Fable·Gemini는 제외. 작업별 모델 배치, 사용량 절약, orchestration의 모델 선택에 사용.
+description: 사용자의 구독·크레딧·남은 사용량 안에서 작업 단계마다 모델과 effort를 배치하는 규칙. 하네스(Claude Code, Codex, OpenCode, Copilot, Cursor 등)와 과금 방식을 확인하고, 결과를 검증할 수 있는 단계는 싼 모델에, 어려운 단계만 상위 모델에 근거와 함께 배치한다. 대상 모델은 Luna 6, Terra 6.1, Sol 6.2, Astra 6.2, Haiku 5.5, Sonnet 5.5, Opus 5.5이고, 근거가 있는 자리에 한해 Kimi·GLM·DeepSeek·Qwen 오픈 모델도 쓴다. Fable·Gemini는 제외. 작업별 모델 배치, 사용량 절약, orchestration의 모델 선택에 사용.
 ---
 
 # 구독·사용량에 맞춘 모델 라우팅
@@ -36,8 +36,8 @@ description: 사용자의 구독·크레딧·남은 사용량 안에서 작업 �
 - 작업을 처리 단계로 나누고 단계마다 배치한다(§3). 작업 전체를 한 모델에 맡기지 않는다.
 - 결과를 상위 모델·스크립트·테스트가 다시 확인할 수 있는 좁은 단계(탐색, 분류, 로그 정리, 주어진 문서에서 추출, 요약)는 가장 싼 모델에 둔다. OpenAI 쪽은 Luna 6 low~medium, Claude 쪽은 Haiku 5.5 low~medium이다.
 - 결과가 확인 없이 사람·커밋·배포로 바로 나가는 단계는 한 단계 위 모델에 둔다.
-- 더 높은 품질이 필요하면 effort를 끝까지 올리기보다 다음 모델의 중간 effort로 바꾼다. 독립 측정에서 Luna max는 Terra low보다, Terra xhigh·max는 Sol medium·high와 점수가 비슷하거나 낮으면서 비싸고 느렸다(`references/models.md`).
-- 어려운 코딩·디버깅은 Sol 6.1 medium에서 시작한다. Claude 환경에서는 Opus 5.5 high다.
+- 더 높은 품질이 필요하면 effort를 끝까지 올리기보다 다음 모델의 중간 effort로 바꾼다. 독립 측정에서 Luna max는 Terra low보다 점수가 낮으면서 비쌌고, Terra max(51점·작업당 $0.96)는 Sol 6.2 max(57점·$1.01)와 비용이 거의 같으면서 Sol 6.2 medium(53점)보다도 낮았다. Sol 6.2 max(57점·8.0분)는 Astra 6.2 medium(57점·4.2분)과 점수가 같고 시간은 약 2배였다(`references/models.md`).
+- 어려운 코딩·디버깅은 Sol 6.2 medium에서 시작한다. Claude 환경에서는 Opus 5.5 high다.
 - 회사를 넘나드는 모델 비교는 독립 측정으로 한다. 제조사 발표치는 Anthropic은 독립 측정보다 높게, OpenAI는 같거나 낮게 나오는 경향이 있었다.
 - 근거 강도가 낮은 배치(배치표의 '낮음')는 실제 과제 몇 건으로 채점해 본 뒤 확정한다.
 - 오픈 모델(Kimi, GLM, DeepSeek, Qwen, MiniMax)은 1순위 계열을 쓸 수 없거나 그 계열 예산이 부족할 때, 또는 독립 근거상 더 나은 자리에만 쓴다(`references/placement.md`의 오픈 모델 대안). 회사 코드나 민감한 데이터를 해외 공식 API로 보낼 때는 먼저 사용자에게 확인한다.
@@ -55,7 +55,9 @@ description: 사용자의 구독·크레딧·남은 사용량 안에서 작업 �
 4. API 지원과 현재 앱·CLI의 지원을 구분한다. 표시 이름만 보고 호출 ID를 만들지 않는다.
 5. 모델이 없으면 제안과 실제 실행을 구분해 보고한다. 다른 모델로 실행하면서 요청한 모델을 썼다고 주장하지 않는다.
 6. 안전장치로 다른 모델이 응답할 수 있다. Sonnet 5.5는 고위험 사이버보안 요청을 Sonnet 5로 전환한다. 보안 작업에서는 실제 응답 모델을 확인해 보고한다.
-7. Terra 6.1에 배치할 때는 권한·승인 설정을 끄지 않는다. OpenAI의 Terra 시스템 카드에 따르면 max effort에서 차단을 인지하고도 다른 경로로 작업을 끝낸 비율이 29.6%로 Sol 6.1·Astra·Luna보다 높았고, 다른 에이전트의 메시지를 받고 금지된 행동을 수행한 비율은 13.75%(Sol 6.1은 1.25%)였다 [제조사]. 승인 없이 실행하는 모드, 사람이 승인할 수 없는 헤드리스 실행, 승인 상태를 확인할 수 없는 환경, 로그인·결제·삭제 같은 권한 경계가 있는 작업에는 Terra를 배치하지 않는다. 하네스별 신호는 `references/harnesses.md`에 있다.
+7. Terra 6.1에 배치할 때는 권한·승인 설정을 끄지 않는다. OpenAI의 Terra 시스템 카드에 따르면 max effort에서 차단을 인지하고도 다른 경로로 작업을 끝낸 비율이 29.6%로 Sol 6.1·GPT-6 Astra·Luna보다 높았고, 다른 에이전트의 메시지를 받고 금지된 행동을 수행한 비율은 13.75%(Sol 6.1은 1.25%)였다 [제조사]. GPT-6.2 시스템 카드의 같은 평가에서 Astra 6.2는 17.4%, GPT-6 Astra는 19.4%였고, 에이전트 메시지 평가는 Sol 6.2·Astra 6.2 모두 80회 중 0회였다 [제조사]. 승인 없이 실행하는 모드, 사람이 승인할 수 없는 헤드리스 실행, 승인 상태를 확인할 수 없는 환경, 로그인·결제·삭제 같은 권한 경계가 있는 작업에는 Terra를 배치하지 않는다. 하네스별 신호는 `references/harnesses.md`에 있다.
+8. Sol 6.2·Astra 6.2를 쓸 수 있는지 확인한다. 쓸 수 없는 하네스에서는 배치표의 Sol·Astra 자리에 이전 세대(Sol 6.1, GPT-6 Astra)를 쓰고 배치 공유에 세대를 적는다. 둘 다 쓸 수 있으면 이전 세대를 고르지 않는다. Sol 6.1은 단가가 같고 점수가 낮으며, GPT-6 Astra는 단가가 25% 높고 점수가 낮다(`references/models.md`).
+9. Sol 6.2·Astra 6.2의 완료 보고는 테스트·빌드 출력으로 확인한다. GPT-6.2 시스템 카드에서 두 모델은 작업 보고에서 알고 있던 장애물을 빠뜨리는 경우가 이전 세대보다 많았다(Astra 6.2 22.3%, GPT-6 Astra 11.1%) [제조사]. 인계할 때 건너뛴 항목과 남은 문제 목록을 함께 요구한다.
 
 ## 3. 단계로 나눠 배치하는 절차
 
@@ -78,8 +80,8 @@ description: 사용자의 구독·크레딧·남은 사용량 안에서 작업 �
 | ---------- | ----------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
 | Luna 6     | none, low, medium, high, xhigh, max 지원. 기본 medium                         | 탐색·분류는 low, 기계적 편집은 medium. high 이상이 필요하면 Terra low로 바꾼다               |
 | Terra 6.1  | none, low, medium, high, xhigh, max 지원. 기본 medium                         | 화면 읽기·대량 처리는 low, 일반 작업은 medium, high까지. xhigh·max는 쓰지 않는다             |
-| Sol 6.1    | low, medium, high, xhigh, max 지원. none 미지원. 기본 medium                  | medium, 막히면 high. xhigh 이상은 평가 결과가 있을 때                                        |
-| Astra      | low, medium, high, xhigh, max 지원. none 미지원                               | 장시간 연구는 high, 저장소 단위 수정은 xhigh                                                 |
+| Sol 6.2    | low, medium, high, xhigh, max 지원. none 미지원. Codex 기본 low               | medium, 막히면 high. xhigh 이상이 필요하면 Astra 6.2 medium과 비교한다                       |
+| Astra 6.2  | low, medium, high, xhigh, max 지원. none 미지원. Codex 기본 low               | 장시간 연구는 high, 저장소 단위 수정은 xhigh. max는 쓰지 않는다                              |
 | Haiku 5.5  | low, medium, high, xhigh, max 지원. 기본 medium                               | 탐색·분류는 low, 수정·추출은 medium. xhigh·max는 쓰지 않고 Sonnet 5.5와 비교한다            |
 | Sonnet 5.5 | low, medium, high, xhigh, max 지원. Claude Code·앱 기본 medium, API 기본 high | 계획·리뷰·하위 에이전트는 medium, 글 초안·화면 조작은 high. xhigh가 상한                     |
 | Opus 5.5   | low, medium, high, xhigh, max 지원. API 기본 medium                           | 어려운 코딩·최종 보고서·장시간 연구는 high, 그 외 medium. max는 쓰지 않는다                  |
@@ -89,8 +91,11 @@ description: 사용자의 구독·크레딧·남은 사용량 안에서 작업 �
 - 모든 작업을 high로 시작하지 않는다. xhigh·max는 평가 결과나 남은 문제에 근거해 사용한다.
 - 모델과 effort는 원칙적으로 한 번에 하나씩 변경한다. 동시에 바꿀 필요가 있으면 이유를 기록한다.
 - effort는 엄격한 비용 한도가 아니다. 실제 토큰·도구 호출·재시도 비용을 확인한다.
-- Terra가 high로 부족하면 xhigh·max로 올리지 말고 Sol medium·high로 바꾼다. AA v5.0에서 Terra xhigh(45점·$0.40)는 Sol medium(46점·$0.36)보다 낮고 비쌌고, Terra max(51점·$0.96·150초)는 Sol high(50점·$0.59·38초)와 비슷한 점수에 비용 약 1.6배, 시간 약 4배였다 [독립].
-- 구독형 Codex에서 OpenAI는 같은 사용 한도로 Terra가 Sol·Astra보다 상당히 많은 작업을 처리한다고 안내한다 [제조사]. effort를 올리면 작업당 토큰이 늘어 이 이점이 줄어든다. 한도 절약을 이유로 Terra high 이상을 고르지 않는다.
+- Terra가 high로 부족하면 xhigh·max로 올리지 말고 Sol 6.2 medium으로 바꾼다. Artificial Analysis 지수에서 Terra xhigh는 45점, Terra max는 51점·작업당 $0.96이고, Sol 6.2 medium은 53점, Sol 6.2 max는 57점·$1.01이다 [독립]. Sol 6.2의 작업당 비용은 max만 공개돼 있다. medium의 비용은 실제 과제로 확인한다.
+- Sol 6.2가 high로 부족하면 xhigh·max로 올리기 전에 Astra 6.2 medium과 비교한다. Sol 6.2 max(57점·작업당 8.0분)와 Astra 6.2 medium(57점·4.2분)은 점수가 같다 [독립]. 출력 토큰에 단가를 곱한 비용은 Astra 6.2 medium이 Sol 6.2 max의 약 0.8배다(추정. 입력 비용은 빠져 있다).
+- Astra 6.2 max는 쓰지 않는다. xhigh와 점수가 같고(62점) 작업당 시간은 약 1.9배(12.9분 대 6.8분), 출력 토큰은 약 2.4배였다 [독립].
+- Codex에서 Sol 6.2·Astra 6.2의 기본 effort는 low다 [관찰]. 배치표의 effort를 `model_reasoning_effort`로 명시한다. Codex의 ultra는 API에 없는 값이고 작업을 하위 에이전트에 자동으로 위임한다. 배치표에 없으므로 쓰지 않고, 위임은 §3의 단계 배치로 한다.
+- 구독형 Codex의 5시간당 메시지 추정치는 Terra 35~285건, Sol 6.2 17~180건, Astra 6.2 6~50건이다 [제조사]. effort를 올리면 작업당 토큰이 늘어 Terra의 이점이 줄어든다. 한도 절약을 이유로 Terra high 이상을 고르지 않는다.
 - Sonnet 5.5의 high 이상이 필요하면 Opus 5.5 high와 비교한다. Anthropic의 effort 곡선에서 Opus high(64.2%·$3.88)가 Sonnet xhigh(61.5%·$5.30)보다 점수는 높고 비용은 낮았다 [제조사].
 - Sonnet 5.5의 max를 기본 상한으로 쓰지 않는다. FrontierCode에서는 xhigh가 max보다 높았고, max는 범위 밖 변경과 시간 초과가 늘 수 있다.
 - Opus 5.5 max는 high보다 0.6점 높은 데 비용이 약 2.9배였다 [제조사]. max를 쓰지 않는다.
@@ -110,7 +115,7 @@ description: 사용자의 구독·크레딧·남은 사용량 안에서 작업 �
 | ---------------------------------------- | ------------------------------------------------ | ----------------------------------------------- |
 | 탐색·분류 결과를 믿기 어려움             | Luna low → Terra low                             | Haiku low → Haiku medium                        |
 | 일반 구현의 품질 부족                    | Terra high → Sol medium                          | Haiku medium 두 번 실패 → Sonnet medium         |
-| 어려운 구현·디버깅이 막힘                | Sol medium → Sol high → 저장소 단위면 Astra xhigh | Opus high → 평가 후 Opus xhigh                  |
+| 어려운 구현·디버깅이 막힘                | Sol medium → Sol high → Astra medium. 저장소 단위면 Astra xhigh | Opus high → 평가 후 Opus xhigh                  |
 | Sonnet xhigh로도 부족                    | —                                                | Opus high                                       |
 | 시각 판독·화면 조작의 정밀도 부족        | Terra medium → Sol high                          | Haiku medium → Sonnet high → Opus high          |
 | 권한 경계가 있는 조작                    | Terra 대신 Sol medium (§2-7)                     | Sonnet high → Opus high                         |
@@ -123,7 +128,7 @@ description: 사용자의 구독·크레딧·남은 사용량 안에서 작업 �
 ## 6. 비용·사용량 관리
 
 - 배치 시점에 공식 가격을 확인할 수 있으면 갱신한다. 확인하지 못하면 기준일이 있는 참고값으로만 사용한다.
-- 구독·크레딧의 모델별 소진 속도와 예산 상태별 조정은 `references/plans.md`를 따른다. API 종량제는 토큰 단가가 아니라 작업당 비용으로 비교한다(`references/models.md`의 AA v5.0 표). 토큰 단가가 낮아도 effort를 높여 응답이 길어지면 작업당 비용이 역전된다. 대표 사례가 Luna max와 Terra low, Terra max와 Sol high다(§4).
+- 구독·크레딧의 모델별 소진 속도와 예산 상태별 조정은 `references/plans.md`를 따른다. API 종량제는 토큰 단가가 아니라 작업당 비용으로 비교한다(`references/models.md`의 AA v5.0 표). 토큰 단가가 낮아도 effort를 높여 응답이 길어지면 작업당 비용이 역전된다. 대표 사례가 Luna max와 Terra low, Terra max와 Sol 6.2 max다(§4).
 - 사용 토큰과 함께 재시도, 검증, 인계 비용을 고려한다.
 - 전체 저장소나 긴 로그를 모든 에이전트에게 반복 전달하지 않는다. 필요한 코드·diff·오류·요구사항만 전달한다.
 - 검색·필터링·집계는 도구와 스크립트로 수행한다.
